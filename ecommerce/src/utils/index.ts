@@ -1,8 +1,10 @@
+import { productType } from '../App'
+
 export const getSwiperSlidesNumber = (prodsNum: number, slidesNum: number) => {
   return prodsNum > slidesNum ? slidesNum : prodsNum
 }
 
-export const filterProductsByObj = (products, filterObj) => {
+export const filterProductsByObj = (products: productType[], filterObj: {[key: string]: string}) => {
   let filteredProducts = [...products]
 
   for (const key in filterObj) {
