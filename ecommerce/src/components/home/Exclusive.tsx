@@ -69,7 +69,7 @@ const Exclusive = () => {
             </h1>
           </Reveal>
           <ExclusiveTime />
-          <Link to='/shop'>
+          <Link to='/shop' className='block w-fit ml-auto mr-auto sm:mr-0'>
             <Reveal>
               <button className='btn-main sm:mr-0  rounded-sm px-3 py-2 ml-auto text-md relative z-50'>
                 Check it Out
