@@ -16,6 +16,7 @@ import { productsActions } from './store/products-slice'
 import useHttp from './hooks/useHttp'
 import { cartActions } from './store/cart-slice'
 import { wishlistActions } from './store/wishlist-slice'
+import { ScrollToTop } from './utils'
 
 export type productType = {
   _id: string
@@ -78,6 +79,8 @@ function App() {
       dispatch(productsActions.replaceProducts(res))
     })
   }, [dispatch, sendData])
+
+  ScrollToTop()
 
   return (
     <div className='min-h-dvh flex flex-col'>

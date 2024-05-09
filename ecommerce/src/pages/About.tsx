@@ -16,6 +16,8 @@ const Box = ({
   Icon: any
 
 }) => {
+
+
   return (
     <Reveal>
       <li className='box w-[300px] p-3 border border-solid border-main flex items-center'>

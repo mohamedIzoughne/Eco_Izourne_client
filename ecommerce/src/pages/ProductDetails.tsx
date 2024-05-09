@@ -25,7 +25,6 @@ const ProductDetails = () => {
   const dispatch = useDispatch()
   const [quantity, setQuantity] = useState(1)
   const { sendData } = useHttp()
-  console.log(similarProds)
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -54,11 +53,9 @@ const ProductDetails = () => {
     const active = document.querySelector('.slide.active')
     active?.classList.remove('active')
     e.currentTarget.classList.add('active')
-    console.log(mainImage)
     setMainImage(e.currentTarget.getAttribute('id') || '')
   }
-  //   const slideTo = useCallback((index) => swiper.slideTo(index), [swiper])
-  console.log(getSwiperSlidesNumber(similarProds.length, 1))
+
   return (
     <section className='container mb-16'>
       <PageHeading title='Product details' />
