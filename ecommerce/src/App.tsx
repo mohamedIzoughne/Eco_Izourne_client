@@ -43,8 +43,12 @@ function App() {
   const { sendData } = useHttp()
 
   useEffect(() => {
-    const cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')!) : null
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')!) 
+    const cart = localStorage.getItem('cart')
+      ? JSON.parse(localStorage.getItem('cart')!)
+      : null
+    const wishlist = localStorage.getItem('wishlist')
+      ? JSON.parse(localStorage.getItem('wishlist')!)
+      : ''
     if (cart) {
       dispatch(cartActions.replaceCart(cart))
     }
