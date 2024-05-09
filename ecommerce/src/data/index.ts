@@ -1,4 +1,7 @@
-export const faqs = {
+type faqsType = {
+  [key: string]: string
+}
+export const faqs: faqsType = {
   'What is your return policy?':
     'Our return policy ensures your satisfaction. You can return any product within 30 days of purchase for a full refund or exchange. Just make sure the item is in its original condition and packaging.',
 

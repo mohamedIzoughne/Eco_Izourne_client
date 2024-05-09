@@ -1,4 +1,4 @@
-const Cart = ({ total, OnContinue }) => {
+const Cart = ({ total, OnContinue }: { total: number; OnContinue: () => void }) => {
   return (
     <div
       className='cart lg:col-span-1 m-1 mb-[44px] lg:mt-[44px] lg:mb-0 py-5 px-5 lg:h-[473px] border 

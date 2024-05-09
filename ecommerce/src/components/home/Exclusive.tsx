@@ -3,49 +3,50 @@ import SectionHeading from '../../UI/SectionHeading'
 import { Link } from 'react-router-dom'
 import watch from '../../assets/watch.png'
 import Reveal from '../../UI/Reveal'
+import { useEffect, useMemo, useState } from 'react'
 const ExclusiveTime = () => {
-  const date = new Date('2024-12-3')
-  const time = date - new Date()
+  const date = useMemo(() => new Date('2024-12-3'), [])
+  const [time, setTime] = useState(Number(date) - Number(new Date()))
   // const totalSeconds = time / 1000
-  const totalSeconds = time / 1000
+  // const totalSeconds = time / 1000
 
-  // Convert seconds to minutes
-  const totalMinutes = Math.floor(totalSeconds / 60)
+  const days = Math.floor(time / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((time % (1000 * 60)) / 1000)
 
-  const totalHours = Math.floor(totalMinutes / 60)
-  const remainingMinutes = Math.floor(totalMinutes % 60)
-
-  const totalDays = Math.floor(totalHours / 24)
-  const remainingHours = Math.floor(totalHours % 24)
-
-  const remainingMonths = Math.floor(totalDays / 30.44) // Approximate number of days in a month
-  const remainingDays = Math.floor(totalDays % 30.44)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setTime(Number(date) - Number(new Date()))
+    }, 1000)
+    return () => clearTimeout(timeoutId)
+  }, [time, setTime, date])
 
   return (
     <div className='time my-5'>
       <ul className='flex max-w-[200px] mx-auto sm:ml-0 justify-between text-center'>
         <Reveal>
           <li className='w-[42px] h-[40px] rounded-full bg-white flex flex-col justify-center leading-none'>
-            <p className='text-[18.69px] font-bold'>{remainingMonths}</p>
-            <small className='text-[7.38px]'>months</small>
-          </li>
-        </Reveal>
-        <Reveal>
-          <li className='w-[42px] h-[40px] rounded-full bg-white flex flex-col justify-center leading-none'>
-            <p className='text-[18.69px] font-bold'>{remainingDays}</p>
+            <p className='text-[18.69px] font-bold'>{days}</p>
             <small className='text-[7.38px]'>days</small>
           </li>
         </Reveal>
         <Reveal>
           <li className='w-[42px] h-[40px] rounded-full bg-white flex flex-col justify-center leading-none'>
-            <p className='text-[18.69px] font-bold'>{remainingHours}</p>
+            <p className='text-[18.69px] font-bold'>{hours}</p>
             <small className='text-[7.38px]'>hr</small>
           </li>
         </Reveal>
         <Reveal>
           <li className='w-[42px] h-[40px] rounded-full bg-white flex flex-col justify-center leading-none'>
-            <p className='text-[18.69px] font-bold'>{remainingMinutes}</p>
+            <p className='text-[18.69px] font-bold'>{minutes}</p>
             <small className='text-[7.38px]'>min</small>
+          </li>
+        </Reveal>
+        <Reveal>
+          <li className='w-[42px] h-[40px] rounded-full bg-white flex flex-col justify-center leading-none'>
+            <p className='text-[18.69px] font-bold'>{seconds}</p>
+            <small className='text-[7.38px]'>sec</small>
           </li>
         </Reveal>
       </ul>

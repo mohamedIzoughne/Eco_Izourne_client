@@ -12,7 +12,9 @@ const Box = ({
 }: {
   title: string
   desc: string
-  Icon: React.ReactElement
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Icon: any
+
 }) => {
   return (
     <Reveal>

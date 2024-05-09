@@ -2,8 +2,12 @@ import { FaBagShopping } from 'react-icons/fa6'
 import SectionHeading from '../UI/SectionHeading'
 import Product from './Product'
 import { Link } from 'react-router-dom'
-
-const Products = ({ products, title }) => {
+import { productType } from '../App'
+type propsType = {
+  products: productType[],
+  title: string
+}
+const Products = ({ products, title }: propsType) => {
   return (
     <section className='products container pb-40'>
       {products.length > 0 && (

@@ -13,7 +13,7 @@ const useHttp = () => {
   const sendData = useCallback(async function <responseType>(
     endpoint: string,
     options: optionsType,
-    successHandler: (data?: responseType) => void
+    successHandler: (data?: responseType, err?: Error) => void
   ) {
     setIsLoading(true)
     try {
@@ -23,7 +23,9 @@ const useHttp = () => {
       if (response.ok) {
         successHandler(data)
       } else {
-        throw new Error(data.message)
+        const error = new Error(data.message)
+        successHandler(undefined, error)
+        throw error
       }
     } catch (err) {
       if (err instanceof Error) setErrorMessage(err.message)

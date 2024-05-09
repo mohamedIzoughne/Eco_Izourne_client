@@ -1,20 +1,21 @@
 import PageHeading from '../components/PageHeading'
 import { useState } from 'react'
-import { cartActions } from '../store/cart-slice'
+import { cartActions, cartItemState } from '../store/cart-slice'
 import { useDispatch, useSelector } from 'react-redux'
 import Cart from '../components/cart/Cart'
 import CartItem from '../components/cart/CartItem'
 import Checkout from '../components/cart/Checkout'
+import { RootState } from '../store'
 
 const CartPage = () => {
   const [isCart, setIsCart] = useState(true)
-  const cart = useSelector((state) => state.cart)
+  const cart = useSelector((state: RootState) => state.cart)
   const dispatch = useDispatch()
   const handleCart = () => {
     setIsCart(false)
   }
-  const removeFromCart = (id) => {
-    dispatch(cartActions.removeItemFromCart(id))
+  const removeFromCart = (product: cartItemState) => {
+    dispatch(cartActions.removeItemFromCart(product))
   }
 
   return (
@@ -28,7 +29,7 @@ const CartPage = () => {
             <div className='col-span-1 p-2'>Price</div>
             <div className='col-span-1 p-2'>Total</div>
           </div>
-          {cart.items.map((item) => (
+          {cart.items.map((item: cartItemState) => (
             <CartItem
               key={item._id}
               item={item}

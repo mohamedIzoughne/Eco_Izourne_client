@@ -6,7 +6,7 @@ import {
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { faqs } from '../data'
-const FAQ = ({ question }) => {
+const FAQ = ({ question }: {question: string}) => {
   const [isOpen, seIsOpen] = useState(false)
   const duration = 0.25
   return (

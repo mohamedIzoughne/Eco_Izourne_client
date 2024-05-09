@@ -1,20 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
-import { GoTrash } from 'react-icons/go'
 import { MdOutlineKeyboardArrowUp } from 'react-icons/md'
 import { useLocation } from 'react-router-dom'
 import { filterProductsByObj } from '../../utils'
+import { productType } from '../../App'
 
 const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
-const DEFAULT_FILTER_OBJ = {
-  category: 'All',
-  brand: 'All',
-  price: [0, Number.POSITIVE_INFINITY],
-}
 
-export const Navigation = ({ filterProducts, products }) => {
+export const Navigation = ({
+  filterProducts,
+  products,
+}: {
+  filterProducts: (arg: productType[]) => void
+  products: productType[]
+}) => {
   const { search } = useLocation()
   const categoryTerm = new URLSearchParams(search).get('cat') || 'Laptop'
   const brandTerm = new URLSearchParams(search).get('brand') || 'All'
@@ -22,8 +23,8 @@ export const Navigation = ({ filterProducts, products }) => {
   const [brand, setBrand] = useState(brandTerm)
   const [selectedCategory, setSelectedCategory] = useState(categoryTerm)
   //   const categoryRef = useRef('laptop')
-  const minPriceRef = useRef(0)
-  const maxPriceRef = useRef(Number.POSITIVE_INFINITY)
+  const minPriceRef = useRef<HTMLInputElement>(null)
+  const maxPriceRef = useRef<HTMLInputElement>(null)
   const memoizedCategory = useMemo(() => selectedCategory, [selectedCategory])
   const memoizedBrand = useMemo(() => brand, [brand])
   // const filterOptions = {
@@ -40,8 +41,8 @@ export const Navigation = ({ filterProducts, products }) => {
       category: selectedCategory,
       brand: brand,
       price: [
-        +minPriceRef.current.value,
-        maxPriceRef.current.value || Number.POSITIVE_INFINITY,
+        +minPriceRef.current!.value || 0,
+        maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
       ],
     }
 
@@ -98,7 +99,7 @@ export const Navigation = ({ filterProducts, products }) => {
         </div>
         <ul className='text-grayish text-sm pl-6'>
           {BRANDS.map((br) => (
-            <Brand onCheck={() => setBrand(br)} checked={br === brand} isActive>
+            <Brand onCheck={() => setBrand(br)} checked={br === brand}>
               {br}
             </Brand>
           ))}
@@ -147,7 +148,13 @@ export const Navigation = ({ filterProducts, products }) => {
   )
 }
 
-export const MobileNavigation = ({ isOpen, closeNav }) => {
+export const MobileNavigation = ({
+  isOpen,
+  closeNav,
+}: {
+  isOpen: boolean
+  closeNav: () => void
+}) => {
   return (
     <AnimatePresence>
       <motion.div
@@ -192,7 +199,7 @@ export const MobileNavigation = ({ isOpen, closeNav }) => {
             <h2 className='font-bold text-[19px]'>Brand</h2>
           </div>
           <ul className='text-grayish text-sm flex-grow flex flex-wrap gap-x-5'>
-            <MobileBrand isActive>Lenovo</MobileBrand>
+            <MobileBrand>Lenovo</MobileBrand>
             <MobileBrand>Dell</MobileBrand>
             <MobileBrand>HP</MobileBrand>
             <MobileBrand>All</MobileBrand>
@@ -237,7 +244,7 @@ export const MobileNavigation = ({ isOpen, closeNav }) => {
 
 type ItemType = {
   onChangeCategory: (category: string) => void
-  children: React.ReactNode
+  children: string
   isActive?: boolean
 }
 
@@ -255,20 +262,28 @@ function Category({ onChangeCategory, children, isActive }: ItemType) {
   )
 }
 
-function MobileCategory({ children, isActive }: ItemType) {
-  return (
-    <li
-      className={`${
-        isActive ? 'font-bold bg-black text-white' : 'bg-white text-black'
-      }  hover:bg-black hover:text-white 
-        px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300`}
-    >
-      {children}
-    </li>
-  )
-}
+// function MobileCategory({ children, isActive }: ItemType) {
+//   return (
+//     <li
+//       className={`${
+//         isActive ? 'font-bold bg-black text-white' : 'bg-white text-black'
+//       }  hover:bg-black hover:text-white
+//         px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300`}
+//     >
+//       {children}
+//     </li>
+//   )
+// }
 
-function Brand({ children, isActive, checked, onCheck }: ItemType) {
+function Brand({
+  children,
+  checked,
+  onCheck,
+}: {
+  checked: boolean
+  onCheck: () => void
+  children: React.ReactNode
+}) {
   return (
     <li className='flex items-center mt-2'>
       <input
@@ -284,7 +299,7 @@ function Brand({ children, isActive, checked, onCheck }: ItemType) {
   )
 }
 
-function MobileBrand({ children, isActive }: ItemType) {
+function MobileBrand({ children }: { children: React.ReactNode }) {
   return (
     <li className='flex items-center mt-2'>
       <input

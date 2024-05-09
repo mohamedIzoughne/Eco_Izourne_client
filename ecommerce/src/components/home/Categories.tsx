@@ -8,8 +8,11 @@ import laptop from '../../assets/images/laptop.jpg'
 import Exclusive from './Exclusive'
 import { Link } from 'react-router-dom'
 import Reveal from '../../UI/Reveal'
-
-const Category = ({ title, image }) => {
+type propsType = {
+  title: string
+  image: string
+}
+const Category = ({ title, image }: propsType) => {
   return (
     <div className='category-image category z-10 shadow-customed aspect-square flex flex-col justify-center items-center cursor-pointer mx-auto min-w-[250px] overflow-hidden rounded-md'>
       <img

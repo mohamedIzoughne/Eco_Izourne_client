@@ -3,26 +3,32 @@ import { useLocation } from 'react-router-dom'
 import { IoMdMenu } from 'react-icons/io'
 import { useEffect, useState } from 'react'
 import { LiaTimesSolid } from 'react-icons/lia'
-import { AnimatePresence, animate, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { IoCartOutline } from 'react-icons/io5'
 import { useDispatch, useSelector } from 'react-redux'
 import { CiHeart } from 'react-icons/ci'
 import { useReducer } from 'react'
-import { cartActions } from '../store/cart-slice'
+import { cartActions, cartItemState } from '../store/cart-slice'
 import { wishlistActions } from '../store/wishlist-slice'
+import { RootState } from '../store'
 
 // hovering on cart state
-const initialCartState = {
+type stateType = {
+  isActive: boolean
+  isPreviewActive: boolean
+}
+
+const initialCartState: stateType = {
   isActive: false,
   isPreviewActive: false,
 }
 
-const initialWishState = {
+const initialWishState: stateType = {
   isActive: false,
   isPreviewActive: false,
 }
 
-const reducer = (state, action) => {
+const reducer = (state: stateType, action: {payload: boolean, type?: string}) => {
   switch (action.type) {
     case 'isActive':
       return { ...state, isActive: action.payload }
@@ -92,6 +98,7 @@ const NavbarList = ({
 }: {
   className: string
   location: string
+  isOpen: boolean
 }) => {
   return (
     <AnimatePresence>
@@ -117,10 +124,8 @@ const NavbarList = ({
 }
 
 const MobileNavbarList = ({
-  className,
   location,
 }: {
-  className: string
   location: string
 }) => {
   return (
@@ -186,8 +191,8 @@ const Mobile = () => {
   )
 }
 
-const CartPreview = ({ onMouseLeave, onMouseOver }) => {
-  const cart = useSelector((state) => state.cart)
+const CartPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, onMouseOver: () => void}) => {
+  const cart = useSelector((state: RootState) => state.cart)
   const dispatch = useDispatch()
   return (
     <div
@@ -202,7 +207,7 @@ const CartPreview = ({ onMouseLeave, onMouseOver }) => {
       ) : (
         <ul>
           {' '}
-          {cart.items.map((item) => (
+          {cart.items.map((item: cartItemState) => (
             <li
               className='flex items-center mb-2 border-b border-gray-200 border-solid py-2'
               key={item._id}
@@ -235,8 +240,8 @@ const CartPreview = ({ onMouseLeave, onMouseOver }) => {
   )
 }
 
-const WishPreview = ({ onMouseLeave, onMouseOver }) => {
-  const wish = useSelector((state) => state.wish)
+const WishPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, onMouseOver: () => void}) => {
+  const wish = useSelector((state: RootState) => state.wish)
   const dispatch = useDispatch()
 
   // const handleClick = (ite) => {
@@ -305,7 +310,7 @@ const Desktop = () => {
   // const [isPreviewActive, setIsCartActive] = useState(false)
 
   const [cart, dispatchCart] = useReducer(reducer, initialCartState)
-  const [wish, dispatchWish] = useReducer(reducer, initialCartState)
+  const [wish, dispatchWish] = useReducer(reducer, initialWishState)
   // const { isActive, IsCartActive } = state
 
   const hoveringCartPreviewHandler = () => {
@@ -348,7 +353,7 @@ const Desktop = () => {
     <div className='sticky top-0 bg-white z-40'>
       <nav className='container flex justify-between items-center py-3 relative'>
         <h2 className='logo mr-8'>IZOURNE</h2>
-        <MobileNavbarList location={location} className='' />
+        <MobileNavbarList location={location}  />
         <div className='heart flex gap-x-3'>
           <div className='heart relative'></div>
           <div

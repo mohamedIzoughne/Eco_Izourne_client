@@ -2,9 +2,15 @@ import { AiOutlineMinus } from 'react-icons/ai'
 import { IoAdd } from 'react-icons/io5'
 import { LiaTimesSolid } from 'react-icons/lia'
 import { useDispatch } from 'react-redux'
-import { cartActions } from '../../store/cart-slice'
+import { cartActions, cartItemState } from '../../store/cart-slice'
 
-const CartItem = ({ item, removeFromCart }) => {
+const CartItem = ({
+  item,
+  removeFromCart,
+}: {
+  item: cartItemState
+  removeFromCart: (arg: cartItemState) => void
+}) => {
   const dispatch = useDispatch()
   const quantity = item.quantity
 

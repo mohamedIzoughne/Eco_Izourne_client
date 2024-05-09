@@ -1,10 +1,11 @@
 import { useSelector } from 'react-redux'
+import { RootState } from '../../store'
 
 const Checkout = () => {
   const thisMonth = new Date().getMonth() + 1
   const thisYear = new Date().getFullYear()
   const date = `${thisYear}-${thisMonth}`
-  const totalCartPrice = useSelector((state) => state.cart.totalCartPrice)
+  const totalCartPrice = useSelector((state: RootState) => state.cart.totalCartPrice)
 
   return (
     <div className='m-1 mt-[44px] py-5 px-5 h-[473px] border border-[#C6C6C6] border-opacity-20 border-soli'>

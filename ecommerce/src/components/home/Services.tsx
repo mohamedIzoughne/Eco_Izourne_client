@@ -10,7 +10,7 @@ const Service = ({
 }: {
   title: string
   desc: string
-  icon: any
+  icon: React.ReactNode
 }) => {
   return (
     <Reveal className='mx-auto'>

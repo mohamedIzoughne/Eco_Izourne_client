@@ -13,11 +13,13 @@ import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { cartActions } from '../store/cart-slice'
 import useHttp from '../hooks/useHttp'
+import { RootState } from '../store'
+import { productType } from '../App'
 
 const ProductDetails = () => {
   const { prodId } = useParams()
-  const products = useSelector((state) => state.prods.products)
-  const [similarProds, setSimilarProds] = useState([])
+  const products = useSelector((state: RootState) => state.prods.products)
+  const [similarProds, setSimilarProds] = useState<productType[]>([])
   const product = products.find((product) => product._id.toString() === prodId)
   const [mainImage, setMainImage] = useState(product?.imageURL)
   const dispatch = useDispatch()
@@ -29,11 +31,13 @@ const ProductDetails = () => {
       method: 'GET',
     }
 
-    sendData(
+    sendData<productType[]>(
       `similar/${prodId}?cat=${product?.category.name}`,
       options,
       (res) => {
-        setSimilarProds(res)
+        if(res) {
+          setSimilarProds(res)
+        }
       }
     )
   }, [])
@@ -46,12 +50,12 @@ const ProductDetails = () => {
     setQuantity((prev) => prev - 1)
   }
 
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const active = document.querySelector('.slide.active')
     active?.classList.remove('active')
     e.currentTarget.classList.add('active')
     console.log(mainImage)
-    setMainImage(e.currentTarget.getAttribute('id'))
+    setMainImage(e.currentTarget.getAttribute('id') || '')
   }
   //   const slideTo = useCallback((index) => swiper.slideTo(index), [swiper])
   console.log(getSwiperSlidesNumber(similarProds.length, 1))
@@ -60,7 +64,7 @@ const ProductDetails = () => {
       <PageHeading title='Product details' />
       <div className='product flex flex-col items-center lg:flex-row lg:items-start'>
         <div className='w-full sm:w-auto flex flex-col-reverse sm:flex-row '>
-          {product?.images.length > 0 && (
+          {product?.images && product?.images.length > 0 && (
             <div className='w-full sm:w-[100px] slider col-span-1 overflow-hidden'>
               <Swiper
                 // direction='horizontal'
@@ -135,23 +139,23 @@ const ProductDetails = () => {
         </div>
         <div className='flex-grow ml-3 mt-5'>
           <h1 className=' text-4xl font-bold tracking-tighter mb-5'>
-            {product.title}
+            {product?.title}
           </h1>
           <p>
             <span className='font-bold text-xl'>State: </span>
             <span className='font-bold ml-10 text-[#959595]'>
-              {product.state}
+              {product?.state}
             </span>
           </p>
           <hr className='border-[#EEEEE] my-3' />
           <p className=''>
-            <span className='text-xl font-bold'>${product.price} </span>
+            <span className='text-xl font-bold'>${product?.price} </span>
             <small className='line-through text-xs text-[#959595]'>
-              ${product.price + 0.4 * product.price}
+              ${product && product.price + 0.4 * product.price}
             </small>
           </p>
           <p className='max-w-[320px] text-[#7A7A7A] mb-5'>
-            “{product.description}”
+            “{product?.description}”
           </p>
           <hr />
           <div className='flex items-start  mt-4 flex-col md:flex-row flex-wrap sm:items-center gap-y-2'>

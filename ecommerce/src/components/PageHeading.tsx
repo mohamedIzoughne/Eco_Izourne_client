@@ -1,8 +1,7 @@
-import { FaLongArrowAltLeft } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { HiOutlineArrowLeft } from 'react-icons/hi'
 
-const PageHeading = ({ title }) => {
+const PageHeading = ({ title }: {title: string}) => {
   let subTitle = title.charAt(0).toUpperCase() + title.slice(1)
   subTitle = title.split(' ')[0]
   return (

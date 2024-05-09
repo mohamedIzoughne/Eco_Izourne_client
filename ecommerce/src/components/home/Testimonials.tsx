@@ -1,11 +1,10 @@
 import { Swiper, SwiperSlide } from 'swiper/react'
 import person from '../../assets/person.jpg'
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Navigation } from 'swiper/modules'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
 import Reveal from '../../UI/Reveal'
-// import 'swiper/css/pagination'
 
 const Testimonial = () => {
   return (
@@ -22,7 +21,7 @@ const Testimonial = () => {
         </h3>
         <Reveal>
           <p className='text-[12px] text-grayish px-5'>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
+            Lorem Ipsum is simply dummy text of the printing and typesetting
             industry. Lorem Ipsum has been the industry's stand
           </p>
         </Reveal>

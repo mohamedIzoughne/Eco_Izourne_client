@@ -1,24 +1,25 @@
 import { Link } from 'react-router-dom'
-import cart from '../assets/cart.svg'
-import cartAdded from '../assets/cart_added.svg'
-import { IoCartOutline } from 'react-icons/io5'
 import { CiHeart } from 'react-icons/ci'
 import { PiShoppingCartThin } from 'react-icons/pi'
 import { useDispatch, useSelector } from 'react-redux'
-import { cartActions } from '../store/cart-slice'
+import { cartActions, cartItemState } from '../store/cart-slice'
 import { wishlistActions } from '../store/wishlist-slice'
-import { useState } from 'react'
 import Reveal from '../UI/Reveal'
-const Product = ({ product, className = '' }) => {
-  const products = useSelector((state) => state.prods.products)
-  const cart = useSelector((state) => state.cart)
-  const wish = useSelector((state) => state.wish)
+import { productType } from '../App'
+import {RootState} from '../store'
+type propsType = {
+  product: productType
+  className?: string
+}
+
+const Product = ({ product, className = '' }: propsType) => {
+  const cart = useSelector((state: RootState) => state.cart)
+  const wish = useSelector((state: RootState) => state.wish)
   const dispatch = useDispatch()
-  const isAddedToCart = !!cart.items.find((item) => item._id === product._id)
+  const isAddedToCart = !!cart.items.find((item: cartItemState) => item._id === product._id)
   const isAddedToWishList = !!wish.items.find(
-    (item) => item._id === product._id
+    (item: productType) => item._id === product._id
   )
-  const [something, setSomething] = useState(Math.random())
 
   // const [isAddedToWishList, setIsAddedToWishlist] = useState<boolean>(
   //   product.isAddedToWishList
@@ -29,7 +30,6 @@ const Product = ({ product, className = '' }) => {
 
   const addToWishList = () => {
     dispatch(wishlistActions.addToWishList(product))
-    // console.log(wishListItems)
   }
 
   const removeFromWishlist = () => {

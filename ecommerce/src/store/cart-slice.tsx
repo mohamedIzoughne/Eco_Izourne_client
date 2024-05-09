@@ -1,11 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+export type cartItemState = {
+  _id: string
+  title: string
+  imageURL: string
+  price: number
+  quantity: number
+  totalPrice: number
+  description: string
+}
+
+type initialStateType = {
+  items: cartItemState[]
+  totalQuantity: number
+  totalCartPrice: number
+}
+
+const initialState: initialStateType = {
+  items: [],
+  totalCartPrice: 0,
+  totalQuantity: 0
+}
+
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: {
-    items: [],
-    totalCartPrice: 0,
-  },
+  initialState: initialState,
   reducers: {
     replaceCart(state, action) {
       state.totalQuantity = action.payload.totalQuantity

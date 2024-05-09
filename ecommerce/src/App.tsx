@@ -10,20 +10,41 @@ import Contact from './pages/Contact'
 import FAQs from './pages/FAQs'
 import About from './pages/About'
 import Wishlist from './pages/Wishlist'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { productsActions } from './store/products-slice'
 import useHttp from './hooks/useHttp'
 import { cartActions } from './store/cart-slice'
 import { wishlistActions } from './store/wishlist-slice'
+
+export type productType = {
+  _id: string
+  title: string
+  imageURL: string
+  images: string[]
+  price: number
+  category: {
+    name: string
+    imageURL: string
+    _id: string
+  }
+  state: string
+  description: string
+  isAddedToCart: boolean
+  isAddedToWishList: boolean
+}
+
+export type cartType = {
+  items: productType[]
+}
+
 function App() {
   const dispatch = useDispatch()
   const { sendData } = useHttp()
-  // console.log(cartItems)
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart'))
-    const wishlist = JSON.parse(localStorage.getItem('wishlist'))
+    const cart = JSON.parse(localStorage.getItem('cart') || '')
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '')
     if (cart) {
       dispatch(cartActions.replaceCart(cart))
     }
@@ -34,22 +55,22 @@ function App() {
       method: 'GET',
     }
 
-    sendData('products', options, (res, err) => {
+    sendData<productType[]>('products', options, (res, err) => {
       if (err) return
-      // console.log(res)
-      res.forEach((pr) => {
-        if (cart.items.find((item) => item._id === pr._id)) {
-          pr.isAddedToCart = true
-        } else {
-          pr.isAddedToCart = false
-        }
-        if (wishlist.items.find((item) => item._id === pr._id)) {
-          pr.isAddedToWishList = true
-        } else {
-          pr.isAddedToWishList = false
-        }
-        console.log(pr.isAddedToWishList)
-      })
+      if (res) {
+        res?.forEach((pr) => {
+          if (cart.items.find((item: productType) => item._id === pr._id)) {
+            pr.isAddedToCart = true
+          } else {
+            pr.isAddedToCart = false
+          }
+          if (wishlist.items.find((item: productType) => item._id === pr._id)) {
+            pr.isAddedToWishList = true
+          } else {
+            pr.isAddedToWishList = false
+          }
+        })
+      }
       dispatch(productsActions.replaceProducts(res))
     })
   }, [dispatch, sendData])
