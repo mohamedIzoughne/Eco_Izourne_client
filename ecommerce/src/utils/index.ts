@@ -1,18 +1,18 @@
-import { productType } from '../App'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const getSwiperSlidesNumber = (prodsNum: number, slidesNum: number) => {
   return prodsNum > slidesNum ? slidesNum : prodsNum
 }
 
-export const filterProductsByObj = (products: productType[], filterObj: {[key: string]: string}) => {
+// type filterObjType = {[key: string]: any}
+
+export const filterProductsByObj = (
+  products: any,
+  filterObj: any
+) => {
   let filteredProducts = [...products]
 
   for (const key in filterObj) {
-    // console.log(key, filterObj[key])
-
-    // filteredProducts[0].forEach((prod) => {
-    //   console.log(key, prod[key])
-    // })
 
     if (filterObj[key] !== 'All' && key !== 'price') {
       filteredProducts = filteredProducts.filter(
@@ -22,8 +22,8 @@ export const filterProductsByObj = (products: productType[], filterObj: {[key: s
     } else if (key === 'price') {
       filteredProducts = filteredProducts.filter(
         (product) =>
-          product.price >= filterObj[key][0] &&
-          product.price <= filterObj[key][1]
+          product.price >= filterObj['price'][0] &&
+          product.price <= filterObj['price'][1]
       )
     }
   }
