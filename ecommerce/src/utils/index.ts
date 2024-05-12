@@ -1,19 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
-export const getSwiperSlidesNumber = (prodsNum: number, slidesNum: number) => {
-  return prodsNum > slidesNum ? slidesNum : prodsNum
-}
-
-export const filterProductsByObj = (
-  products: any,
-  filterObj: any
-) => {
+export const filterProductsByObj = (products: any, filterObj: any) => {
   let filteredProducts = [...products]
 
   for (const key in filterObj) {
-
     if (filterObj[key] !== 'All' && key !== 'price') {
       filteredProducts = filteredProducts.filter(
         (product) =>
@@ -32,11 +24,11 @@ export const filterProductsByObj = (
 }
 
 export function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    window.scrollTo(0, 0)
+  }, [pathname])
 
-  return null;
+  return null
 }

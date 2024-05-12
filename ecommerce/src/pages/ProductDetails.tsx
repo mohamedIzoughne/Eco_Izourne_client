@@ -6,7 +6,6 @@ import { Navigation, Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { getSwiperSlidesNumber } from '../utils'
 import Product from '../components/Product'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -34,7 +33,7 @@ const ProductDetails = () => {
       `similar/${prodId}?cat=${product?.category.name}`,
       options,
       (res) => {
-        if(res) {
+        if (res) {
           setSimilarProds(res)
         }
       }
@@ -206,19 +205,19 @@ const ProductDetails = () => {
               }}
               breakpoints={{
                 0: {
-                  slidesPerView: getSwiperSlidesNumber(similarProds.length, 1),
+                  slidesPerView: 1,
                 },
                 440: {
-                  slidesPerView: getSwiperSlidesNumber(similarProds.length, 2),
+                  slidesPerView: 2,
                 },
                 768: {
-                  slidesPerView: getSwiperSlidesNumber(similarProds.length, 3),
+                  slidesPerView: 3,
                 },
                 1024: {
-                  slidesPerView: getSwiperSlidesNumber(similarProds.length, 4),
+                  slidesPerView: 4,
                 },
                 1280: {
-                  slidesPerView: getSwiperSlidesNumber(similarProds.length, 5),
+                  slidesPerView: 5,
                 },
               }}
               //   autoplay
