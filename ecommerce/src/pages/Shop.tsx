@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import { Navigation } from '../components/shop/FilterNav'
 import { productType } from '../App'
 import { RootState } from '../store'
+import { ScrollToTop } from '../utils'
 type propsType = {
   OnChangePage: (arg1: number, arg2: number) => void
   size: number
@@ -27,11 +28,13 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
   const handleClick = (i: number) => {
     setIsActive(i)
     OnChangePage(i * PAG_NUMBER, (i + 1) * PAG_NUMBER)
+    ScrollToTop()
   }
 
   const handlePrev = () => {
     if (isActive > 0) {
       handleClick(isActive - 1)
+      ScrollToTop()
     }
   }
 
@@ -161,7 +164,7 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
 //         </div>
 //         <div className='buttons mt-6 flex w-[80%] min-w[111px]'>
 //           <button
-//             className='min-w-[111px] h-[54px] bg-main hover:bg-[#068572] text-white flex justify-center 
+//             className='min-w-[111px] h-[54px] bg-main hover:bg-[#068572] text-white flex justify-center
 //         items-center text-xl font-bold flex-grow duration-200'
 //           >
 //             Apply
@@ -294,7 +297,10 @@ const AllProducts = ({ products }: { products: productType[] }) => {
   // const [filterIsOpen, setFilterIsOpen] = useState(false)
 
   // const filteredProducts = filterProducts(products, defaultFilteringObject)
-  const [pagItemsNumber, setPagItemsNumber] = useState<[number, number]>([0, PAG_NUMBER])
+  const [pagItemsNumber, setPagItemsNumber] = useState<[number, number]>([
+    0,
+    PAG_NUMBER,
+  ])
   const [showedProducts, setShowedProducts] = useState<productType[]>(
     products.slice(pagItemsNumber[0], pagItemsNumber[1])
   )

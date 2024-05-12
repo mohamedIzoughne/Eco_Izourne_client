@@ -61,8 +61,12 @@ function App() {
     }
 
     sendData<productType[]>('products', options, (res, err) => {
-      if (err) return
+      if (err) {
+        console.log(err)
+        return
+      }
       if (res) {
+        console.log(res)
         res?.forEach((pr) => {
           if (cart.items.find((item: productType) => item._id === pr._id)) {
             pr.isAddedToCart = true
