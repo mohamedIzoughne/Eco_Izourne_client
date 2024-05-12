@@ -66,14 +66,19 @@ function App() {
         return
       }
       if (res) {
-        console.log(res)
         res?.forEach((pr) => {
-          if (cart.items.find((item: productType) => item._id === pr._id)) {
+          if (
+            cart &&
+            cart.items.find((item: productType) => item._id === pr._id)
+          ) {
             pr.isAddedToCart = true
           } else {
             pr.isAddedToCart = false
           }
-          if (wishlist.items.find((item: productType) => item._id === pr._id)) {
+          if (
+            wishlist &&
+            wishlist.items.find((item: productType) => item._id === pr._id)
+          ) {
             pr.isAddedToWishList = true
           } else {
             pr.isAddedToWishList = false
