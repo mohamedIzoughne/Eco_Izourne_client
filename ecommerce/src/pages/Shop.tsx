@@ -18,7 +18,7 @@ type propsType = {
 //   children?: React.ReactNode
 //   isActive?: boolean
 // }
-const PAG_NUMBER = 10
+const PAG_NUMBER = 12
 
 const Pagination = ({ OnChangePage, size }: propsType) => {
   const [isActive, setIsActive] = useState(0)
@@ -363,7 +363,7 @@ const AllProducts = ({ products }: { products: productType[] }) => {
             w-[119px] text-[12px] focus:outline-none items-center'
             onChange={handleChange}
           >
-            <option value='default'>default</option>
+            <option value='default'></option>
             <option value='alphabet'>Alphabetically</option>
             <option value='price'>price</option>
           </select>

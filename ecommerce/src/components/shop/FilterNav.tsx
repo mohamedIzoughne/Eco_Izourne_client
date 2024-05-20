@@ -17,7 +17,7 @@ export const Navigation = ({
   products: productType[]
 }) => {
   const { search } = useLocation()
-  const categoryTerm = new URLSearchParams(search).get('cat') || 'Laptop'
+  const categoryTerm = new URLSearchParams(search).get('cat') || 'All'
   const brandTerm = new URLSearchParams(search).get('brand') || 'All'
 
   const [brand, setBrand] = useState(brandTerm)

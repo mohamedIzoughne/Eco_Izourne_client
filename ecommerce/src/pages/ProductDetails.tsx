@@ -127,7 +127,7 @@ const ProductDetails = () => {
           )}
           <div className='image-holder w-full sm:w-[448px] aspect-square bg-[#D9D9D9] overflow-hidden'>
             <img
-              className='w-full'
+              className='w-full h-full object-cover'
               src={import.meta.env.VITE_SERVER_API + mainImage}
               alt=''
             />
@@ -199,6 +199,7 @@ const ProductDetails = () => {
               // spaceBetween={0}
               navigation
               loop={true}
+              spaceBetween={15}
               autoplay={{
                 delay: 3000,
                 disableOnInteraction: false,
@@ -206,18 +207,23 @@ const ProductDetails = () => {
               breakpoints={{
                 0: {
                   slidesPerView: 1,
+                  // spaceBetween: 0,
                 },
                 440: {
                   slidesPerView: 2,
+                  // spaceBetween: 5,
                 },
                 768: {
                   slidesPerView: 3,
+                  // spaceBetween: 10,
                 },
                 1024: {
                   slidesPerView: 4,
+                  // spaceBetween: 10,
                 },
                 1280: {
                   slidesPerView: 5,
+                  // spaceBetween: 10,
                 },
               }}
               //   autoplay
