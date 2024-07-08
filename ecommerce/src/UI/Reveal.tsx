@@ -1,7 +1,15 @@
 import { motion, useAnimation, useInView } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 
-const Reveal = ({ children, className = '', width = 'fit-content' }: {children: React.ReactNode, className?: string, width?: string}) => {
+const Reveal = ({
+  children,
+  className = '',
+  width = 'fit-content',
+}: {
+  children: React.ReactNode
+  className?: string
+  width?: string
+}) => {
   const ref = useRef(null)
   //   const slideRef = useRef(null)
   const isInView = useInView(ref, { margin: '0px 0px -50px 0px', once: false })
@@ -23,6 +31,7 @@ const Reveal = ({ children, className = '', width = 'fit-content' }: {children: 
       ref={ref}
     >
       <motion.div
+        className='h-full'
         variants={{
           hidden: { opacity: 0, y: 75 },
           visible: { opacity: 1, y: 0 },

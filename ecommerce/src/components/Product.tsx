@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import { CiHeart } from 'react-icons/ci'
 import { PiShoppingCartThin } from 'react-icons/pi'
 import { useDispatch, useSelector } from 'react-redux'
-import { cartActions, cartItemState } from '../store/cart-slice'
+import { cartActions } from '../store/cart-slice'
 import { wishlistActions } from '../store/wishlist-slice'
 import Reveal from '../UI/Reveal'
 import { productType } from '../App'
-import {RootState} from '../store'
+import { RootState } from '../store'
 type propsType = {
   product: productType
   className?: string
@@ -14,12 +14,16 @@ type propsType = {
 
 const Product = ({ product, className = '' }: propsType) => {
   const cart = useSelector((state: RootState) => state.cart)
-  const wish = useSelector((state: RootState) => state.wish)
+  // const wish = useSelector((state: RootState) => state.wish)
   const dispatch = useDispatch()
-  const isAddedToCart = !!cart.items.find((item: cartItemState) => item._id === product._id)
-  const isAddedToWishList = !!wish.items.find(
-    (item: productType) => item._id === product._id
-  )
+  // const isAddedToCart = !!cart.items.find(
+  //   (item: cartItemState) => item._id === product._id
+  // )
+  // const isAddedToWishList = !!wish.items.find(
+  //   (item: productType) => item._id === product._id
+  // )
+  const isAddedToCart = !!cart.items[product._id]
+  const isAddedToWishList = product.isAddedToWishList
 
   // const [isAddedToWishList, setIsAddedToWishlist] = useState<boolean>(
   //   product.isAddedToWishList
@@ -59,12 +63,12 @@ const Product = ({ product, className = '' }: propsType) => {
     'bg-white hover:bg-black hover:text-white hover:border-white'
 
   return (
-    <li className={className + ' relative shadow-customed '}>
-      <Reveal width='100%'>
-        <Link to={`/products/${product._id}`}>
+    <li className={className + ' relative shadow-customed aspect-product'}>
+      <Reveal width='100%' className='h-full'>
+        <Link to={`/products/${product._id}`} className='block h-[80%]'>
           <div
             className='image-holder bg-secondary 
-         mx-auto h-20 h- h-80'
+         mx-auto h- h-full'
           >
             <img
               className='w-full h-full object-cover'

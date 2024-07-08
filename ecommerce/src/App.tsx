@@ -17,7 +17,6 @@ import useHttp from './hooks/useHttp'
 import { cartActions } from './store/cart-slice'
 import { wishlistActions } from './store/wishlist-slice'
 import { ScrollToTop } from './utils'
-
 export type productType = {
   _id: string
   title: string
@@ -60,33 +59,39 @@ function App() {
       method: 'GET',
     }
 
-    sendData<productType[]>('products', options, (res, err) => {
-      if (err) {
-        console.log(err)
-        return
+    sendData<{ products: productType[]; total: number }>(
+      'products',
+      options,
+      (res, err) => {
+        if (err) {
+          console.log(err)
+          return
+        }
+
+        if (res) {
+          res.products.forEach((pr) => {
+            if (
+              cart &&
+              // cart.items.find((item: productType) => item._id === pr._id)
+              cart.items[pr._id]
+            ) {
+              pr.isAddedToCart = true
+            } else {
+              pr.isAddedToCart = false
+            }
+            if (
+              wishlist &&
+              wishlist.items.find((item: productType) => item._id === pr._id)
+            ) {
+              pr.isAddedToWishList = true
+            } else {
+              pr.isAddedToWishList = false
+            }
+          })
+        }
+        dispatch(productsActions.replaceProducts(res?.products))
       }
-      if (res) {
-        res?.forEach((pr) => {
-          if (
-            cart &&
-            cart.items.find((item: productType) => item._id === pr._id)
-          ) {
-            pr.isAddedToCart = true
-          } else {
-            pr.isAddedToCart = false
-          }
-          if (
-            wishlist &&
-            wishlist.items.find((item: productType) => item._id === pr._id)
-          ) {
-            pr.isAddedToWishList = true
-          } else {
-            pr.isAddedToWishList = false
-          }
-        })
-      }
-      dispatch(productsActions.replaceProducts(res))
-    })
+    )
   }, [dispatch, sendData])
 
   ScrollToTop()

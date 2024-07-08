@@ -29,7 +29,7 @@ const CartPage = () => {
             <div className='col-span-1 p-2'>Price</div>
             <div className='col-span-1 p-2'>Total</div>
           </div>
-          {cart.items.map((item: cartItemState) => (
+          {Object.values(cart.items).map((item: cartItemState) => (
             <CartItem
               key={item._id}
               item={item}

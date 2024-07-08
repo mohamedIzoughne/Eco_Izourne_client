@@ -28,7 +28,10 @@ const initialWishState: stateType = {
   isPreviewActive: false,
 }
 
-const reducer = (state: stateType, action: {payload: boolean, type?: string}) => {
+const reducer = (
+  state: stateType,
+  action: { payload: boolean; type?: string }
+) => {
   switch (action.type) {
     case 'isActive':
       return { ...state, isActive: action.payload }
@@ -123,11 +126,7 @@ const NavbarList = ({
   )
 }
 
-const MobileNavbarList = ({
-  location,
-}: {
-  location: string
-}) => {
+const MobileNavbarList = ({ location }: { location: string }) => {
   return (
     <ul className='flex'>
       <MobileNavbarItem location={location} itemName='Home' />
@@ -191,9 +190,16 @@ const Mobile = () => {
   )
 }
 
-const CartPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, onMouseOver: () => void}) => {
+const CartPreview = ({
+  onMouseLeave,
+  onMouseOver,
+}: {
+  onMouseLeave: () => void
+  onMouseOver: () => void
+}) => {
   const cart = useSelector((state: RootState) => state.cart)
   const dispatch = useDispatch()
+  const items = Object.values(cart.items)
   return (
     <div
       className='cartShowed bg-white absolute transform 
@@ -202,12 +208,12 @@ const CartPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, o
       onMouseLeave={onMouseLeave}
       onMouseOver={onMouseOver}
     >
-      {cart.items.length === 0 ? (
+      {!items ? (
         <p>Your cart is empty</p>
       ) : (
         <ul>
           {' '}
-          {cart.items.map((item: cartItemState) => (
+          {items.map((item: cartItemState) => (
             <li
               className='flex items-center mb-2 border-b border-gray-200 border-solid py-2'
               key={item._id}
@@ -240,7 +246,13 @@ const CartPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, o
   )
 }
 
-const WishPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, onMouseOver: () => void}) => {
+const WishPreview = ({
+  onMouseLeave,
+  onMouseOver,
+}: {
+  onMouseLeave: () => void
+  onMouseOver: () => void
+}) => {
   const wish = useSelector((state: RootState) => state.wish)
   const dispatch = useDispatch()
 
@@ -255,12 +267,12 @@ const WishPreview = ({ onMouseLeave, onMouseOver }: {onMouseLeave: () => void, o
       onMouseLeave={onMouseLeave}
       onMouseOver={onMouseOver}
     >
-      {wish && wish.items.length === 0 ? (
+      {!wish || !wish.items  ? (
         <p>Your wish list is empty</p>
       ) : (
         <ul>
           {' '}
-          {wish.items.map((item) => (
+          {Object.values(wish.items).map((item) => (
             <li
               className='mb-2 border-b border-gray-200 border-solid py-2'
               key={item._id}
@@ -353,7 +365,7 @@ const Desktop = () => {
     <div className='sticky top-0 bg-white z-40'>
       <nav className='container flex justify-between items-center py-3 relative'>
         <h2 className='logo mr-8'>IZOURNE</h2>
-        <MobileNavbarList location={location}  />
+        <MobileNavbarList location={location} />
         <div className='heart flex gap-x-3'>
           <div className='heart relative'></div>
           <div

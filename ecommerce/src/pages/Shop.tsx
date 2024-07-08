@@ -377,11 +377,11 @@ const AllProducts = ({ products }: { products: productType[] }) => {
           />
         </form>
       </div>
-      <ul className='products flex flex-wrap justify-start gap-5 mt-2 mx-auto'>
+      <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>
         {showedProducts.map((product) => (
           <Product
             key={product._id}
-            className='flex-grow min-w-[250px] max-w-[4%]'
+            className='flex-grow min-w-[250px]'
             product={product}
           />
         ))}

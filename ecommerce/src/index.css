@@ -77,3 +77,12 @@ body *::selection {
   background-color: #0cc1a6;
   color: white;
 }
+
+.grid-column-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.aspect-product {
+  aspect-ratio: 288/402;
+}
