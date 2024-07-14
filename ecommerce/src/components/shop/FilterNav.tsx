@@ -5,7 +5,7 @@ import { MdOutlineKeyboardArrowUp } from 'react-icons/md'
 import { useLocation } from 'react-router-dom'
 import { filterProductsByObj } from '../../utils'
 import { productType } from '../../App'
-
+import Select from '../../UI/Select'
 const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
 
@@ -20,58 +20,32 @@ export const Navigation = ({
   const categoryTerm = new URLSearchParams(search).get('cat') || 'All'
   const brandTerm = new URLSearchParams(search).get('brand') || 'All'
 
-  const [brand, setBrand] = useState(brandTerm)
+  const [selectedBrand, setSelectedBrand] = useState(brandTerm)
   const [selectedCategory, setSelectedCategory] = useState(categoryTerm)
-  //   const categoryRef = useRef('laptop')
   const minPriceRef = useRef<HTMLInputElement>(null)
   const maxPriceRef = useRef<HTMLInputElement>(null)
-  const memoizedCategory = useMemo(() => selectedCategory, [selectedCategory])
-  const memoizedBrand = useMemo(() => brand, [brand])
-  // const filterOptions = {
-  //   category: selectedCategory,
-  //   brand: selectedOption,
-  //   price: [
-  //     +minPriceRef.current.value,
-  //     maxPriceRef.current.value || Number.POSITIVE_INFINITY,
-  //   ],
-  // }
+  const memoizedProducts = useMemo(() => products, [products])
 
   const filterHandler = useCallback(() => {
     const filterOptions = {
       category: selectedCategory,
-      brand: brand,
+      brand: selectedBrand,
       price: [
         +minPriceRef.current!.value || 0,
         maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
       ],
     }
-
-    const filteredProds = filterProductsByObj(products, filterOptions)
+    const filteredProds = filterProductsByObj(memoizedProducts, filterOptions)
     filterProducts(filteredProds)
-  }, [brand, filterProducts, products, selectedCategory])
+  }, [selectedCategory, selectedBrand])
 
   useEffect(() => {
     filterHandler()
-  }, [filterHandler, memoizedCategory, memoizedBrand, minPriceRef, maxPriceRef])
+  }, [filterHandler])
+
   const changeCategory = (category: string) => {
-    // categoryRef.current = category
     setSelectedCategory(category)
   }
-
-  // const options = {
-  //   option1: false,
-  //   option2: false,
-  //   option3: false,
-  //   option4: false,
-  // }
-
-  // Object.keys(options).forEach((option) => {
-  //   if (option === selectedOption) {
-  //     options[option] = true
-  //   } else {
-  //     options[option] = false
-  //   }
-  // })
 
   return (
     <div className='first w-[300px] h-full mt-[80px] mr-4 border-r border-[#E3E2E2] border-solid pr-6 '>
@@ -99,7 +73,10 @@ export const Navigation = ({
         </div>
         <ul className='text-grayish text-sm pl-6'>
           {BRANDS.map((br) => (
-            <Brand onCheck={() => setBrand(br)} checked={br === brand}>
+            <Brand
+              onCheck={() => setSelectedBrand(br)}
+              checked={br === selectedBrand}
+            >
               {br}
             </Brand>
           ))}
@@ -148,13 +125,35 @@ export const Navigation = ({
   )
 }
 
+// const Select: React.FC<{ children: React.JSX; title: string }> = ({
+//   children,
+//   title,
+// }) => {
+//   return (
+//     <select
+//       name=''
+//       id=''
+//       className='border min-h-8 border-gray-300 border-solid rounded-sm
+//             w-1/3 focus:outline-none items-center'
+//     >
+//       <option value='default' hidden selected disabled>
+//         {title}
+//       </option>
+//       {children}
+//     </select>
+//   )
+// }
+
 export const MobileNavigation = ({
   isOpen,
   closeNav,
+  onSearch,
 }: {
   isOpen: boolean
   closeNav: () => void
+  onSearch: (e: React.FormEvent<HTMLFormElement>, searchRef?: Element) => void
 }) => {
+  const searchRef = useRef<Element>(null)
   return (
     <AnimatePresence>
       <motion.div
@@ -173,39 +172,42 @@ export const MobileNavigation = ({
         transition={{
           duration: 0.3,
         }}
-        className='first absolute  top-[88px] bg-white mt-2 border-[#E3E2E2] border-solid flex w-full p-5 pb-16
+        className='first bg-white mt-2 border-[#E3E2E2] border-solid flex w-full p-5 pb-16
       justify-start mb-4 flex-col text-center items-center z-40 overflow-hidden'
       >
-        <div className='row'>
-          <div className='head flex justify-center items-center max-w-full flex-wrap'>
-            <h2 className='font-bold text-[19px]'>Categories</h2>
-          </div>
-          {/* <ul className='text-grayish text-sm flex gap-1 flex-wrap justify-center'>
-              <Category isActive>Laptops</Category>
-              <Category>Phones</Category>
-              <Category>Computers</Category>
-              <Category>Monitors</Category>
-              <Category>Gaming</Category>
-            </ul> */}
-          <select name='' id=''>
-            <option value=''>laptops</option>
-            <option value=''>Computers</option>
-            <option value=''>Monitors</option>
-            <option value=''>Gaming</option>
-          </select>
+        <form
+          className='search w-full mt-3 mb-1'
+          onSubmit={(e) => onSearch(e, searchRef!.current!.value)}
+        >
+          <input
+            type='text'
+            placeholder='Search'
+            className='italic w-full h-[47px] rounded-[4px] pl-4 text-[17px] text-[#616161] border border-[#E0E0E0] border-solid focus:outline-none border-opacity-70'
+            ref={searchRef}
+          />
+        </form>
+        <div className='row flex w-full justify-between gap-1'>
+          <Select title='sort by' className='w-1/3'>
+            <option value='default' hidden selected disabled>
+              sort by
+            </option>
+            <option value='alphabet'>Alphabetically</option>
+            <option value='price'>price</option>
+          </Select>
+          <Select title='brand' className='w-1/3'>
+            <option value='lenovo'>Lenovo</option>
+            <option value='dell'>Dell</option>
+            <option value='hp'>HP</option>
+            <option value='all'>aLL</option>
+          </Select>
+          <Select title='category' className='w-1/3'>
+            <option value='laptops'>laptops</option>
+            <option value='computers'>Computers</option>
+            <option value='monitors'>Monitors</option>
+            <option value='gaming'>Gaming</option>
+          </Select>
         </div>
-        <div className='row mt-7'>
-          <div className='head flex justify-center items-center mt-4'>
-            <h2 className='font-bold text-[19px]'>Brand</h2>
-          </div>
-          <ul className='text-grayish text-sm flex-grow flex flex-wrap gap-x-5'>
-            <MobileBrand>Lenovo</MobileBrand>
-            <MobileBrand>Dell</MobileBrand>
-            <MobileBrand>HP</MobileBrand>
-            <MobileBrand>All</MobileBrand>
-          </ul>
-        </div>
-        <div className='row mt-7'>
+        {/* <div className='row mt-7'>
           <div className='head flex justify-center items-center'>
             <h2 className='font-bold text-[19px]'>Price</h2>
           </div>
@@ -225,18 +227,18 @@ export const MobileNavigation = ({
               />
             </div>
           </div>
-        </div>
-        <div className='buttons mt-6 flex w-[80%] min-w[111px]'>
+        </div> */}
+        {/* <div className='buttons mt-6 flex w-[80%] min-w[111px]'>
           <button
             className='min-w-[111px] h-[54px] bg-mai hover:bg-[#068572]n hover:bg-[#068572] text-white flex justify-center 
           items-center text-xl font-bold flex-grow duration-200'
           >
             Apply
           </button>
-        </div>
-        <button onClick={closeNav}>
+        </div> */}
+        {/* <button onClick={closeNav}>
           <FaTimes className='absolute top-3 right-3 text-2xl cursor-pointer text-gray-500' />
-        </button>
+        </button> */}
       </motion.div>
     </AnimatePresence>
   )

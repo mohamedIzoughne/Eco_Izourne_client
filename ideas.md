@@ -9,7 +9,6 @@ Let's make by order:
 - add arabic
 - new idea, data cleaning: is to use gemini to give you based on the informations that you gave it all what you need, for example ram, disk storage, and all of those informations
 - add a quick view to the website
-- get inspired from electro market
 - editing images before publishing
 - better design for image in cart and favorite for the image
 
@@ -32,7 +31,7 @@ Let's make by order:
 <!-- - ADD ICONS TO THE FOOTER -->
 - ADD TEH VIEW TO THE HOME + ABILITY TO CHANGE VIEW
 <!-- - MORE RESPONSIVENESS OF SERVICES FOR MOBILE -->
-- ADD SORTBY TO PRODUCTS SECITION IN HOME + ADD THE OPTIONS
+<!-- - ADD SORTBY TO PRODUCTS SECITION IN HOME + ADD THE OPTIONS -->
 <!-- - only check one checkbox: shop -->
 - categories active thing
 - make a component of toggling in shop, filtering with animation
@@ -52,8 +51,8 @@ REdux:
 
 <!-- - I should use that query in the url like ? for example -->
 <!-- - apply tailwind tricks that you learned -->
-- use grid in:
-- - products section in home and in shop page
+<!-- - use grid in:
+- - products section in home and in shop page -->
 - add scroll to top button
 <!-- - use redux toolkit for cart -->
 - add dark mode

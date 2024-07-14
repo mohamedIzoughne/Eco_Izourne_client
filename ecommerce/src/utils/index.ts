@@ -5,11 +5,14 @@ import { useLocation } from 'react-router-dom'
 export const filterProductsByObj = (products: any, filterObj: any) => {
   let filteredProducts = [...products]
 
+  console.log(filterObj)
+
+  console.log(products)
+
   for (const key in filterObj) {
-    if (filterObj[key] !== 'All' && key !== 'price') {
+    if (key !== 'price' && filterObj[key] !== 'All') {
       filteredProducts = filteredProducts.filter(
-        (product) =>
-          product[key].name.toLowerCase() === filterObj[key].toLowerCase()
+        (product) => product[key].toLowerCase() === filterObj[key].toLowerCase()
       )
     } else if (key === 'price') {
       filteredProducts = filteredProducts.filter(
@@ -31,4 +34,16 @@ export function ScrollToTop() {
   }, [pathname])
 
   return null
+}
+
+export function handleWindowResize(cb: (width: number) => void) {
+  const handleResize = () => {
+    cb(window.innerWidth)
+  }
+
+  window.addEventListener('resize', handleResize)
+
+  return () => {
+    window.removeEventListener('resize', handleResize)
+  }
 }

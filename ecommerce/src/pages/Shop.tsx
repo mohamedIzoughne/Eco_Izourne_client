@@ -5,10 +5,12 @@ import Product from '../components/Product'
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import PageHeading from '../components/PageHeading'
 import { useSelector } from 'react-redux'
-import { Navigation } from '../components/shop/FilterNav'
+import { Navigation, MobileNavigation } from '../components/shop/FilterNav'
 import { productType } from '../App'
 import { RootState } from '../store'
 import { ScrollToTop } from '../utils'
+import Select from '../UI/Select'
+
 type propsType = {
   OnChangePage: (arg1: number, arg2: number) => void
   size: number
@@ -293,24 +295,39 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
 //   )
 // }
 
-const AllProducts = ({ products }: { products: productType[] }) => {
-  // const [filterIsOpen, setFilterIsOpen] = useState(false)
-
-  // const filteredProducts = filterProducts(products, defaultFilteringObject)
+const AllProducts = ({
+  products,
+  isMobile,
+}: {
+  products: productType[]
+  isMobile: boolean
+}) => {
   const [pagItemsNumber, setPagItemsNumber] = useState<[number, number]>([
     0,
     PAG_NUMBER,
   ])
-  const [showedProducts, setShowedProducts] = useState<productType[]>(
-    products.slice(pagItemsNumber[0], pagItemsNumber[1])
+  const [showedProducts, setShowedProducts] = useState<productType[]>(products)
+  const [pagedProducts, setPagedProducts] = useState<productType[]>(
+    showedProducts.slice(pagItemsNumber[0], pagItemsNumber[1])
+  )
+  const memoizedProducts = useMemo(() => products, [products])
+  // Actually the pagination should be in the backend not in the frontend, each time you send a request
+
+  useEffect(() => {
+    console.log(showedProducts, products)
+  }, [memoizedProducts])
+
+  const memoizedShowedProducts: productType[] = useMemo(
+    () => showedProducts,
+    [showedProducts]
   )
   const memoizedPagNumber = useMemo(() => pagItemsNumber, [pagItemsNumber])
 
   useEffect(() => {
-    setShowedProducts([
-      ...products.slice(memoizedPagNumber[0], memoizedPagNumber[1]),
-    ])
-  }, [products, memoizedPagNumber])
+    setPagedProducts(
+      memoizedShowedProducts.slice(memoizedPagNumber[0], memoizedPagNumber[1])
+    )
+  }, [memoizedShowedProducts, memoizedPagNumber, setPagedProducts])
 
   const searchRef = useRef<HTMLInputElement | null>(null)
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -318,93 +335,125 @@ const AllProducts = ({ products }: { products: productType[] }) => {
       case 'price':
         setShowedProducts((showed) => {
           showed.sort((a, b) => a.price - b.price)
-          return showed
+          return [...showed]
         })
         break
       case 'alphabet':
         setShowedProducts((showed) => {
           showed.sort((a, b) => a.title.localeCompare(b.title))
-          return showed
+          return [...showed]
         })
         break
       default:
-        setShowedProducts(products.slice(pagItemsNumber[0], pagItemsNumber[1]))
+        setShowedProducts(products)
     }
   }
 
-  const searchSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const searchSubmitHandler = (
+    e: React.FormEvent<HTMLFormElement>,
+    searchTerm = searchRef!.current!.value
+  ) => {
     e.preventDefault()
 
-    const searchTerm = searchRef!.current!.value
     setShowedProducts(() => {
-      const filteredProducts = products
-        .filter((product) =>
-          product.title.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .slice(pagItemsNumber[0], pagItemsNumber[1])
+      const filteredProducts = products.filter((product) =>
+        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
 
       return filteredProducts
     })
   }
+
   const pageNumberHandler = (start: number, finish: number) => {
     setPagItemsNumber([start, finish])
   }
 
   return (
-    <div className='second flex-grow mb-20 relative'>
-      <SectionHeading title='Our Products' icon={<RiShoppingBagLine />} />
-      <div className='filter flex justify-between items-center mb-6'>
-        <div className='sort flex mt-4 items-center'>
-          <h2 className='font-bold ml-3 mr-1 sm:mr-4'>Sort by:</h2>
-          <select
-            name=''
-            id=''
-            className='border min-h-8 border-black border-solid rounded-r-full 
-            w-[119px] text-[12px] focus:outline-none items-center'
-            onChange={handleChange}
-          >
-            <option value='default'></option>
-            <option value='alphabet'>Alphabetically</option>
-            <option value='price'>price</option>
-          </select>
-        </div>
-        <form className='search' onSubmit={searchSubmitHandler}>
-          <input
-            type='text'
-            placeholder='Search'
-            className='w-[257px] italic h-[47px] rounded-[4px] pl-4 text-[17px] text-[#616161] border border-[#E0E0E0] border-solid focus:outline-none border-opacity-70'
-            ref={searchRef}
+    <>
+      {!isMobile && (
+        <Navigation products={products} filterProducts={setShowedProducts} />
+      )}
+      <div className='second flex-grow mb-20 relative'>
+        <SectionHeading title='Our Products' icon={<RiShoppingBagLine />} />
+        {!isMobile ? (
+          <div className='filter flex justify-between items-center mb-6'>
+            <div className='sort flex mt-4 items-center'>
+              <h2 className='font-bold ml-3 mr-1 sm:mr-4'>Sort by:</h2>
+              <Select
+                className='min-w-[120px]'
+                title='sort by'
+                onChange={handleChange}
+              >
+                <option value='alphabet'>Alphabetically</option>
+                <option value='price'>price</option>
+              </Select>
+              {/* </select> */}
+            </div>
+            <form className='search' onSubmit={searchSubmitHandler}>
+              <input
+                type='text'
+                placeholder='Search'
+                className='w-[257px] italic h-[47px] rounded-[4px] pl-4 text-[17px] text-[#616161] border border-[#E0E0E0] border-solid focus:outline-none border-opacity-70'
+                ref={searchRef}
+              />
+            </form>
+          </div>
+        ) : (
+          <MobileNavigation
+            onSearch={searchSubmitHandler}
+            isOpen={true}
+            closeNav={() => {}}
           />
-        </form>
+        )}
+        <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>
+          {pagedProducts.map((product) => (
+            <Product
+              key={product._id}
+              className='flex-grow min-w-[250px]'
+              product={product}
+            />
+          ))}
+        </ul>
+        <Pagination
+          size={showedProducts.length}
+          OnChangePage={pageNumberHandler}
+        />
       </div>
-      <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>
-        {showedProducts.map((product) => (
-          <Product
-            key={product._id}
-            className='flex-grow min-w-[250px]'
-            product={product}
-          />
-        ))}
-      </ul>
-      <Pagination size={products.length} OnChangePage={pageNumberHandler} />
-    </div>
+    </>
   )
 }
 
 const Shop = () => {
   let products = useSelector((state: RootState) => state.prods.products)
-  const [filteredProducts, setFilteredProducts] = useState(products)
   products = useMemo(() => products, [products])
+  const [filteredProducts, setFilteredProducts] = useState([...products])
+  const [width, setWidth] = useState(window.innerWidth)
+  const isMobile = +width < 640
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   return (
     <>
       <section className='container'>
         <PageHeading title='Shop' />
-        <section className='flex'>
-          <Navigation
-            products={products}
-            filterProducts={setFilteredProducts}
-          />
-          <AllProducts products={filteredProducts} />
+        <section className={!isMobile ? 'flex' : ''}>
+          {/* {!isMobile && (
+            <Navigation
+              products={products}
+              filterProducts={setFilteredProducts}
+            />
+          )} */}
+          <AllProducts isMobile={isMobile} products={filteredProducts} />
         </section>
       </section>
     </>
