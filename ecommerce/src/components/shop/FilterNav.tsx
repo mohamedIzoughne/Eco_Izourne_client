@@ -10,10 +10,9 @@ const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
 
 export const Navigation = ({
-  filterProducts,
-  products,
+  getFilterParams,
 }: {
-  filterProducts: (arg: productType[]) => void
+  getFilterParams: (arg: {}) => void
   products: productType[]
 }) => {
   const { search } = useLocation()
@@ -24,9 +23,9 @@ export const Navigation = ({
   const [selectedCategory, setSelectedCategory] = useState(categoryTerm)
   const minPriceRef = useRef<HTMLInputElement>(null)
   const maxPriceRef = useRef<HTMLInputElement>(null)
-  const memoizedProducts = useMemo(() => products, [products])
+  // const memoizedProducts = useMemo(() => products, [products])
 
-  const filterHandler = useCallback(() => {
+  const filterClickHandler = () => {
     const filterOptions = {
       category: selectedCategory,
       brand: selectedBrand,
@@ -34,14 +33,22 @@ export const Navigation = ({
         +minPriceRef.current!.value || 0,
         maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
       ],
+      searchTerm: ''
     }
-    const filteredProds = filterProductsByObj(memoizedProducts, filterOptions)
-    filterProducts(filteredProds)
-  }, [selectedCategory, selectedBrand])
+    getFilterParams(filterOptions)
+  }
 
-  useEffect(() => {
-    filterHandler()
-  }, [filterHandler])
+  // useEffect(() => {
+  //   const filterOptions = {
+  //     category: selectedCategory,
+  //     brand: selectedBrand,
+  //     price: [
+  //       +minPriceRef.current!.value || 0,
+  //       maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
+  //     ],
+  //   }
+  //   getFilterParams(filterOptions)
+  // }, [selectedCategory, selectedBrand])
 
   const changeCategory = (category: string) => {
     setSelectedCategory(category)
@@ -107,14 +114,14 @@ export const Navigation = ({
         </div>
       </div>
       <div className='buttons mt-6 flex'>
-        {/* <button
-          onClick={filterHandler}
+        <button
+          onClick={filterClickHandler}
           className='w-[111px] h-[54px] bg-main hover:bg-[#068572] 
           text-white flex justify-center items-center text-xl font-bold duration-200'
         >
           Apply
         </button>
-        <button
+        {/* <button
           className='ml-3 border border-[#D9D9D9] border-solid w-[51px] 
         h-[54px] flex justify-center items-center text-[29px] text-[#878787]'
         >

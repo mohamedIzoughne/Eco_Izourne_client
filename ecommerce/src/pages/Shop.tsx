@@ -4,10 +4,9 @@ import { RiShoppingBagLine } from 'react-icons/ri'
 import Product from '../components/Product'
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import PageHeading from '../components/PageHeading'
-import { useSelector } from 'react-redux'
 import { Navigation, MobileNavigation } from '../components/shop/FilterNav'
 import { productType } from '../App'
-import { RootState } from '../store'
+import useHttp from '../hooks/useHttp'
 import { ScrollToTop } from '../utils'
 import Select from '../UI/Select'
 
@@ -298,9 +297,11 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
 const AllProducts = ({
   products,
   isMobile,
+  onSearch,
 }: {
   products: productType[]
   isMobile: boolean
+  onSearch: (arg: string) => void
 }) => {
   const [pagItemsNumber, setPagItemsNumber] = useState<[number, number]>([
     0,
@@ -354,6 +355,8 @@ const AllProducts = ({
     searchTerm = searchRef!.current!.value
   ) => {
     e.preventDefault()
+
+    onSearch(searchTerm.toLowerCase)
 
     setShowedProducts(() => {
       const filteredProducts = products.filter((product) =>
@@ -424,11 +427,67 @@ const AllProducts = ({
 }
 
 const Shop = () => {
-  let products = useSelector((state: RootState) => state.prods.products)
-  products = useMemo(() => products, [products])
-  const [filteredProducts, setFilteredProducts] = useState([...products])
+  // let products = useSelector((state: RootState) => state.prods.products)
+  // products = useMemo(() => products, [products])
+  const [filteredProducts, setFilteredProducts] = useState()
+  const [params, setParams] = useState({
+    minPrice: 0,
+    maxPrice: undefined,
+    category: undefined,
+    brand: undefined,
+    searchTerm: undefined,
+  })
   const [width, setWidth] = useState(window.innerWidth)
+  const [searchTerm, setSearchTerm] = useState('')
   const isMobile = +width < 640
+  const memoizedParams = useMemo(() => params, [params])
+
+  const { sendData } = useHttp()
+
+  const paramsHandler = (params) => [
+    setParams({ ...params, searchTerm: searchTerm }),
+  ]
+
+  const searchHandler = (searchTerm: string) => {
+    const options = {
+      method: 'GET',
+    }
+
+    const queryString = new URLSearchParams({
+      ...memoizedParams,
+      search: searchTerm,
+    }).toString()
+
+    sendData<{ products: productType[]; total: number }>(
+      `products?${queryString}`,
+      options,
+      (res, err) => {
+        if (err) {
+          throw err
+        }
+        setFilteredProducts(res?.products)
+      }
+    )
+  } // I should also add a sort by if we already had a sort by so that we keep the order without sorting again in the client
+
+  useEffect(() => {
+    const options = {
+      method: 'GET',
+    }
+
+    const queryString = new URLSearchParams(memoizedParams).toString()
+
+    sendData<{ products: productType[]; total: number }>(
+      `products?${queryString}`,
+      options,
+      (res, err) => {
+        if (err) {
+          throw err
+        }
+        setFilteredProducts(res?.products)
+      }
+    )
+  }, [memoizedParams, sendData]) // I should also add a sort by if we already had a sort by so that we keep the order without sorting again in the client
 
   useEffect(() => {
     const handleResize = () => {
@@ -442,18 +501,19 @@ const Shop = () => {
     }
   }, [])
 
+  if (!filteredProducts) return <></>
+
   return (
     <>
       <section className='container'>
         <PageHeading title='Shop' />
         <section className={!isMobile ? 'flex' : ''}>
-          {/* {!isMobile && (
-            <Navigation
-              products={products}
-              filterProducts={setFilteredProducts}
-            />
-          )} */}
-          <AllProducts isMobile={isMobile} products={filteredProducts} />
+          {!isMobile && <Navigation getFilterParams={paramsHandler} />}
+          <AllProducts
+            isMobile={isMobile}
+            products={filteredProducts}
+            onSearch={searchHandler}
+          />
         </section>
       </section>
     </>
