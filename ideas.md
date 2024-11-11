@@ -1,8 +1,8 @@
 Let's make by order:
 
-- make the price filtering better
-- make the stretch of categories/brand/price according to the click of that button
-- fix the problem, I don't know why that happens when I click the dell option or any other option
+<!-- - make the price filtering better -->
+<!-- - make the stretch of categories/brand/price according to the click of that button -->
+
 - use zooming in your products
 - add expand the product button like ebay
 
@@ -12,37 +12,23 @@ Let's make by order:
 - editing images before publishing
 - better design for image in cart and favorite for the image
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- - THE LOVE ICON AND ADD TO CART ICON SHOULD BE CHANGEABLE -->
 <!-- - SHOULD CHANGE THE NAMES AND IMAGES FOR CATEGORIES + MAKE SOME IMPROVEMENTS IN RESPONSIVENESS OF CATEGORIES WHEN MOBILE -->
 <!-- - ADD ICONS TO THE FOOTER -->
+
 - ADD TEH VIEW TO THE HOME + ABILITY TO CHANGE VIEW
-<!-- - MORE RESPONSIVENESS OF SERVICES FOR MOBILE -->
-<!-- - ADD SORTBY TO PRODUCTS SECITION IN HOME + ADD THE OPTIONS -->
-<!-- - only check one checkbox: shop -->
+  <!-- - MORE RESPONSIVENESS OF SERVICES FOR MOBILE -->
+  <!-- - ADD SORTBY TO PRODUCTS SECITION IN HOME + ADD THE OPTIONS -->
+  <!-- - only check one checkbox: shop -->
 - categories active thing
 - make a component of toggling in shop, filtering with animation
-<!-- - use useReducer in this filtering -->
-<!-- - allow only numbers in price field -->
-<!-- - change the go back icon to a better one -->
-<!-- - change the navbar and make it responsive -->
-<!-- - buttons on hover and on ? -->
+  <!-- - use useReducer in this filtering -->
+  <!-- - allow only numbers in price field -->
+  <!-- - change the go back icon to a better one -->
+  <!-- - change the navbar and make it responsive -->
+  <!-- - buttons on hover and on ? -->
 - don't forget to have the number of element in the navbar in cart icon
 <!-- - when you hover on the cart icon it should have the list of products that are added to cart -->
-
 
 REdux:
 
@@ -53,6 +39,7 @@ REdux:
 <!-- - apply tailwind tricks that you learned -->
 <!-- - use grid in:
 - - products section in home and in shop page -->
+
 - add scroll to top button
 <!-- - use redux toolkit for cart -->
 - add dark mode

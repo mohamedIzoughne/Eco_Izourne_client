@@ -8,13 +8,63 @@ import { productType } from '../../App'
 import Select from '../../UI/Select'
 const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
+
+const AnimatedFilterItem = ({ children, className = '', title }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className={`row ${className}`}>
+      <motion.div
+        initial={{
+          height: isOpen ? '30px' : '183px',
+        }}
+        animate={{
+          height: isOpen ? 'auto' : '30px',
+        }}
+        transition={{
+          duration: 0.25,
+        }}
+        className='overflow-hidden'
+      >
+        <div
+          className='head flex justify-between items-center pr-4'
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          <h2 className='font-bold text-[19px]'>{title}</h2>
+          {isOpen ? (
+            <MdOutlineKeyboardArrowDown className='text-[30px] text-grayish cursor-pointer' />
+          ) : (
+            <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
+          )}
+        </div>
+        <motion.div
+          initial={{
+            opacity: isOpen ? '0' : '1',
+          }}
+          animate={{
+            opacity: isOpen
+              ? [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+              : '0',
+          }}
+          transition={{
+            duration: 0.25,
+          }}
+          className='text-grayish text-sm pl-3  mt-2'
+        >
+          {children}
+        </motion.div>
+      </motion.div>
+    </div>
+  )
+}
 
 export const Navigation = ({
-  getFilterParams,
+  filterHandler,
 }: {
-  getFilterParams: (arg: {}) => void
-  products: productType[]
+  filterHandler: (arg: {}) => void
 }) => {
+  const [width, setWidth] = useState(300)
   const { search } = useLocation()
   const categoryTerm = new URLSearchParams(search).get('cat') || 'All'
   const brandTerm = new URLSearchParams(search).get('brand') || 'All'
@@ -23,45 +73,96 @@ export const Navigation = ({
   const [selectedCategory, setSelectedCategory] = useState(categoryTerm)
   const minPriceRef = useRef<HTMLInputElement>(null)
   const maxPriceRef = useRef<HTMLInputElement>(null)
-  // const memoizedProducts = useMemo(() => products, [products])
 
-  const filterClickHandler = () => {
-    const filterOptions = {
-      category: selectedCategory,
-      brand: selectedBrand,
-      price: [
-        +minPriceRef.current!.value || 0,
-        maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
-      ],
-      searchTerm: ''
+  const [minPrice, setMinPrice] = useState(50)
+  const [maxPrice, setMaxPrice] = useState(3500)
+
+  const minPriceHandler = useCallback(
+    (value: number) => {
+      setTimeout(() => {
+        if (value < maxPrice) {
+          setMinPrice(value)
+        }
+      }, 500)
+    },
+    [maxPrice]
+  )
+
+  const maxPriceHandler = useCallback(
+    (value: number) => {
+      setTimeout(() => {
+        if (value > minPrice) {
+          setMaxPrice(value)
+        }
+      }, 500)
+    },
+    [minPrice]
+  )
+
+  //
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [startWidth, setStartWidth] = useState(300)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target instanceof Element && !e.target.closest('.price-range')) {
+      setIsDragging(true)
+      setStartX(e.clientX)
+      setStartWidth(width)
+      document.body.style.userSelect = 'none'
     }
-    getFilterParams(filterOptions)
   }
 
-  // useEffect(() => {
-  //   const filterOptions = {
-  //     category: selectedCategory,
-  //     brand: selectedBrand,
-  //     price: [
-  //       +minPriceRef.current!.value || 0,
-  //       maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
-  //     ],
-  //   }
-  //   getFilterParams(filterOptions)
-  // }, [selectedCategory, selectedBrand])
+  useEffect(() => {
+    if (isDragging) {
+      const handleGlobalMouseMove = (e: MouseEvent) => {
+        const deltaX = e.clientX - startX
+        const newWidth = Math.max(200, Math.min(600, startWidth + deltaX))
+        setWidth(newWidth)
+      }
+
+      const handleGlobalMouseUp = () => {
+        setIsDragging(false)
+        document.body.style.userSelect = 'text'
+      }
+
+      document.addEventListener('mousemove', handleGlobalMouseMove)
+      document.addEventListener('mouseup', handleGlobalMouseUp)
+
+      return () => {
+        document.removeEventListener('mousemove', handleGlobalMouseMove)
+        document.removeEventListener('mouseup', handleGlobalMouseUp)
+      }
+    }
+  }, [isDragging, startX, startWidth])
 
   const changeCategory = (category: string) => {
     setSelectedCategory(category)
   }
 
+  const filterClickHandler = () => {
+    const params = {
+      category: selectedCategory,
+      brand: selectedBrand,
+      minPrice: minPriceRef.current!.value || 0,
+      maxPrice: maxPriceRef.current!.value || Number.POSITIVE_INFINITY,
+    }
+
+    filterHandler(params)
+  }
+
   return (
-    <div className='first w-[300px] h-full mt-[80px] mr-4 border-r border-[#E3E2E2] border-solid pr-6 '>
-      <div className='row'>
-        <div className='head flex justify-between items-center pr-4 mb-2'>
-          <h2 className='font-bold text-[19px]'>Categories</h2>
-          <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-        </div>
-        <ul className='text-grayish text-sm pl-5'>
+    <div
+      className='first h-full mt-[80px] mr-4 mb-10 pb-3 relative'
+      style={{
+        width: width + 'px',
+        cursor: isDragging ? 'col-resize' : 'auto',
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <div className='absolute right-0 top-0 bottom-0 w-[2px] bg-[#E3E2E2] cursor-col-resize hover:bg-main/20' />
+      <div className='pr-6'>
+        <AnimatedFilterItem title='Category'>
           {CATEGORIES.map((category) => (
             <Category
               key={category}
@@ -71,85 +172,82 @@ export const Navigation = ({
               {category}
             </Category>
           ))}
-        </ul>
-      </div>
-      <div className='row mt-10'>
-        <div className='head flex justify-between text-center items-center pr-4 '>
-          <h2 className='font-bold text-[19px]'>Brand</h2>
-          <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-        </div>
-        <ul className='text-grayish text-sm pl-6'>
+        </AnimatedFilterItem>
+        <AnimatedFilterItem className='mt-4' title='Brand'>
           {BRANDS.map((br) => (
             <Brand
               onCheck={() => setSelectedBrand(br)}
               checked={br === selectedBrand}
-            >
-              {br}
-            </Brand>
+              label={br}
+            ></Brand>
           ))}
-        </ul>
-      </div>
-      <div className='row mt-10'>
-        <div className='head flex justify-between items-center pr-4'>
-          <h2 className='font-bold text-[19px]'>Price</h2>
-          <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-        </div>
-        <div className='text-grayish text-sm pl-6 w-[160px] mt-2'>
-          <div className='flex mb-2 justify-between items-center'>
-            From
-            <input
-              ref={minPriceRef}
-              type='number'
-              className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] pl-3 text-black'
-            />
+        </AnimatedFilterItem>
+        <AnimatedFilterItem className='mt-4' title='Price'>
+          <div className='flex flex-col w-full pr-7'>
+            <div className='flex justify-between mb-2'>
+              <span>$50</span>
+              <span>$3500</span>
+            </div>
+            <div className='flex flex-col gap-4'>
+              <div>
+                <label className='block mb-2'>minimum price:</label>
+                <input
+                  type='range'
+                  min='50'
+                  max='3500'
+                  step='10'
+                  className='price-range w-full h-2 bg-main/20 rounded-lg appearance-none cursor-pointer accent-main hover:accent-[#068572]'
+                  ref={minPriceRef}
+                  onChange={(e) => {
+                    if (
+                      +e.target.value > +(maxPriceRef.current?.value || 1000)
+                    ) {
+                      e.target.value = maxPriceRef.current?.value || '1000'
+                    }
+                    minPriceHandler(e.target.value)
+                  }}
+                />
+              </div>
+              <div>
+                <label className='block mb-2'>maximum price:</label>
+                <input
+                  type='range'
+                  min='50'
+                  max='3500'
+                  defaultValue='3500'
+                  step='10'
+                  className='price-range w-full h-2 bg-main/20 rounded-lg appearance-none cursor-pointer accent-main hover:accent-[#068572]'
+                  ref={maxPriceRef}
+                  onChange={(e) => {
+                    if (+e.target.value < +(minPriceRef.current?.value || 0)) {
+                      e.target.value = minPriceRef.current?.value || '0'
+                    }
+                    maxPriceHandler(e.target.value)
+                  }}
+                />
+              </div>
+            </div>{' '}
+            <div className='mt-4 text-center text-grayish'>
+              Price Range: $
+              <span className='font-medium text-main'>{minPrice || 0}</span>
+              {' - $'}
+              <span className='font-medium text-main'>{maxPrice || 1000}</span>
+            </div>
           </div>
-          <div className='flex justify-between items-center'>
-            To
-            <input
-              ref={maxPriceRef}
-              type='number'
-              className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] pl-3 text-black'
-            />
-          </div>
+        </AnimatedFilterItem>
+        <div className='buttons mt-20 flex justify-start mr-6'>
+          <button
+            onClick={filterClickHandler}
+            className='py-2 bg-main w-full hover:bg-[#068572] 
+            text-white flex justify-center items-center text-lg duration-200 rounded-md'
+          >
+            Apply
+          </button>
         </div>
-      </div>
-      <div className='buttons mt-6 flex'>
-        <button
-          onClick={filterClickHandler}
-          className='w-[111px] h-[54px] bg-main hover:bg-[#068572] 
-          text-white flex justify-center items-center text-xl font-bold duration-200'
-        >
-          Apply
-        </button>
-        {/* <button
-          className='ml-3 border border-[#D9D9D9] border-solid w-[51px] 
-        h-[54px] flex justify-center items-center text-[29px] text-[#878787]'
-        >
-          <GoTrash />
-        </button> */}
       </div>
     </div>
   )
 }
-
-// const Select: React.FC<{ children: React.JSX; title: string }> = ({
-//   children,
-//   title,
-// }) => {
-//   return (
-//     <select
-//       name=''
-//       id=''
-//       className='border min-h-8 border-gray-300 border-solid rounded-sm
-//             w-1/3 focus:outline-none items-center'
-//     >
-//       <option value='default' hidden selected disabled>
-//         {title}
-//       </option>
-//       {children}
-//     </select>
-//   )
-// }
 
 export const MobileNavigation = ({
   isOpen,
@@ -179,7 +277,7 @@ export const MobileNavigation = ({
         transition={{
           duration: 0.3,
         }}
-        className='first bg-white mt-2 border-[#E3E2E2] border-solid flex w-full p-5 pb-16
+        className='first bg-white mt-2 border-[#E3E2E2] border-solid flex w-full max-w-[300px] p-5 pb-16
       justify-start mb-4 flex-col text-center items-center z-40 overflow-hidden'
       >
         <form
@@ -262,9 +360,9 @@ function Category({ onChangeCategory, children, isActive }: ItemType) {
     <li
       onClick={() => onChangeCategory(children)}
       className={`${
-        isActive ? 'font-bold bg-black text-white' : 'bg-white text-black'
-      }  hover:bg-black hover:text-white 
-        px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300 w-[120px] mb-2`}
+        isActive ? 'font-bold bg-main text-white' : 'bg-white text-black'
+      }  hover:bg-main hover:text-white 
+        px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300 w-[120px] mb-2 list-none`}
     >
       {children}
     </li>
@@ -285,25 +383,41 @@ function Category({ onChangeCategory, children, isActive }: ItemType) {
 // }
 
 function Brand({
-  children,
+  label,
   checked,
   onCheck,
 }: {
   checked: boolean
   onCheck: () => void
-  children: React.ReactNode
+  label: string
 }) {
+  console.log(label)
   return (
     <li className='flex items-center mt-2'>
-      <input
-        className='mr-2 w-[20px] aspect-square'
-        name='brand'
-        value='3'
-        type='checkbox'
-        onChange={onCheck}
-        checked={checked}
-      />
-      {children}
+      <div className='relative mr-2 w-[20px] aspect-square'>
+        <input
+          className='absolute opacity-0 w-full h-full cursor-pointer accent-main'
+          value='3'
+          type='checkbox'
+          onChange={onCheck}
+          checked={checked}
+          id={label}
+        />
+        {checked ? (
+          <div className='w-[20px] aspect-square border  bg-main rounded flex items-center justify-center'>
+            <svg
+              className='w-4 h-4 text-white'
+              viewBox='0 0 20 20'
+              fill='currentColor'
+            >
+              <path d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' />
+            </svg>
+          </div>
+        ) : (
+          <div className='w-[20px] aspect-square border border-gray-300 rounded'></div>
+        )}
+      </div>
+      <label htmlFor={label}>{label}</label>
     </li>
   )
 }

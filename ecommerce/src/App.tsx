@@ -34,6 +34,8 @@ export type productType = {
   isAddedToWishList: boolean
 }
 
+import { useState } from 'react'
+
 export type cartType = {
   items: productType[]
 }
@@ -41,6 +43,7 @@ export type cartType = {
 function App() {
   const dispatch = useDispatch()
   const { sendData } = useHttp()
+  const [products, setProducts] = useState([])
 
   useEffect(() => {
     const cart = localStorage.getItem('cart')
@@ -60,7 +63,7 @@ function App() {
     }
 
     sendData<{ products: productType[]; total: number }>(
-      'products',
+      'products?chunk=9',
       options,
       (res, err) => {
         if (err) {
@@ -72,8 +75,8 @@ function App() {
           res.products.forEach((pr) => {
             if (
               cart &&
-              // cart.items.find((item: productType) => item._id === pr._id)
               cart.items[pr._id]
+              // cart.items.find((item: productType) => item._id === pr._id)
             ) {
               pr.isAddedToCart = true
             } else {
@@ -88,8 +91,8 @@ function App() {
               pr.isAddedToWishList = false
             }
           })
+          setProducts(res.products)
         }
-        dispatch(productsActions.replaceProducts(res?.products))
       }
     )
   }, [dispatch, sendData])
@@ -100,7 +103,7 @@ function App() {
     <div className='min-h-dvh flex flex-col'>
       <Navbar />
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/' element={<Home products={products} />} />
         <Route path='/shop' element={<Shop />} />
         <Route path='/cart' element={<CartPage />} />
         <Route path='/products/:prodId' element={<ProductDetails />} />

@@ -12,7 +12,7 @@ const Reveal = ({
 }) => {
   const ref = useRef(null)
   //   const slideRef = useRef(null)
-  const isInView = useInView(ref, { margin: '0px 0px -50px 0px', once: false })
+  const isInView = useInView(ref, { margin: '0px 0px -50px 0px', once: true })
   //   const isInView = useInView(ref, { once: true })
   const controls = useAnimation()
 

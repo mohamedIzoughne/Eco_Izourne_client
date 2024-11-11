@@ -9,39 +9,34 @@ import { productType } from '../App'
 import useHttp from '../hooks/useHttp'
 import { ScrollToTop } from '../utils'
 import Select from '../UI/Select'
+import { useNavigate } from 'react-router-dom'
+import Spinner from '../UI/Spinner'
 
 type propsType = {
-  OnChangePage: (arg1: number, arg2: number) => void
-  size: number
+  OnChangePage: (arg1?: number) => void
+  totalSize: number
+  page: number
 }
-// type brandPropTypes = {
-//   onChangeCategory: (category: string) => void
-//   children?: React.ReactNode
-//   isActive?: boolean
-// }
-const PAG_NUMBER = 12
 
-const Pagination = ({ OnChangePage, size }: propsType) => {
-  const [isActive, setIsActive] = useState(0)
+const PAGE_NUMBER = 12
+
+const Pagination = ({ OnChangePage, totalSize, page }: propsType) => {
   const paginationButtons = []
-  const numPages = Math.ceil(size / PAG_NUMBER)
+  const numPages = Math.ceil(totalSize / PAGE_NUMBER)
 
-  const handleClick = (i: number) => {
-    setIsActive(i)
-    OnChangePage(i * PAG_NUMBER, (i + 1) * PAG_NUMBER)
-    ScrollToTop()
-  }
-
-  const handlePrev = () => {
-    if (isActive > 0) {
-      handleClick(isActive - 1)
-      ScrollToTop()
+  const handleNext = () => {
+    if (page < numPages) {
+      OnChangePage()
     }
   }
 
-  const handleNext = () => {
-    if (isActive < numPages - 1) {
-      handleClick(isActive + 1)
+  const handleClick = (newPage: number) => {
+    OnChangePage(newPage)
+  }
+
+  const handlePrev = () => {
+    if (page > 1) {
+      OnChangePage(-1)
     }
   }
 
@@ -49,12 +44,12 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
     paginationButtons.push(
       <motion.button
         className={`w-[29px] h-[30px] flex justify-center items-center bg-[#D9D9D9] rounded-[4px]
-        ${i == isActive ? '' : 'bg-opacity-50'}`}
+        ${i + 1 == page ? '' : 'bg-opacity-50'}`}
         key={i}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => {
-          handleClick(i)
+          handleClick(i + 1)
         }}
       >
         {i + 1}
@@ -65,6 +60,7 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
   return (
     <div className='pagination flex w-fit mx-auto mt-5'>
       <button
+        disabled={page === 1}
         className='text-[#747474] mr-3 hover:text-black duration-200'
         onClick={handlePrev}
       >
@@ -77,6 +73,7 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
       </ul>
       <button
         className='text-[#747474] ml-3 hover:text-black duration-200'
+        disabled={page === numPages}
         onClick={handleNext}
       >
         next
@@ -85,297 +82,109 @@ const Pagination = ({ OnChangePage, size }: propsType) => {
   )
 }
 
-// const MobileNavigation = ({
-//   isOpen,
-//   closeNav,
-// }: {
-//   isOpen: boolean
-//   closeNav: () => void
-// }) => {
-//   return (
-//     <AnimatePresence>
-//       <motion.div
-//         initial={{
-//           height: isOpen ? '0' : '100%',
-//           padding: isOpen ? '0' : 'auto',
-//         }}
-//         animate={{
-//           height: isOpen ? '100%' : '0',
-//           padding: isOpen ? 'auto' : '0',
-//         }}
-//         exit={{
-//           height: '0',
-//           padding: '0',
-//         }}
-//         transition={{
-//           duration: 0.3,
-//         }}
-//         className='first absolute  top-[88px] bg-white mt-2 border-[#E3E2E2] border-solid flex w-full p-5 pb-16
-//     justify-start mb-4 flex-col text-center items-center z-40 overflow-hidden'
-//       >
-//         <div className='row'>
-//           <div className='head flex justify-center items-center max-w-full flex-wrap'>
-//             <h2 className='font-bold text-[19px]'>Categories</h2>
-//           </div>
-//           {/* <ul className='text-grayish text-sm flex gap-1 flex-wrap justify-center'>
-//             <Category isActive>Laptops</Category>
-//             <Category>Phones</Category>
-//             <Category>Computers</Category>
-//             <Category>Monitors</Category>
-//             <Category>Gaming</Category>
-//           </ul> */}
-//           <select name='' id=''>
-//             <option value=''>laptops</option>
-//             <option value=''>Computers</option>
-//             <option value=''>Monitors</option>
-//             <option value=''>Gaming</option>
-//           </select>
-//         </div>
-//         <div className='row mt-7'>
-//           <div className='head flex justify-center items-center mt-4'>
-//             <h2 className='font-bold text-[19px]'>Brand</h2>
-//           </div>
-//           <ul className='text-grayish text-sm flex-grow flex flex-wrap gap-x-5'>
-//             <MobileBrand isActive>Lenovo</MobileBrand>
-//             <MobileBrand>Dell</MobileBrand>
-//             <MobileBrand>HP</MobileBrand>
-//             <MobileBrand>All</MobileBrand>
-//           </ul>
-//         </div>
-//         <div className='row mt-7'>
-//           <div className='head flex justify-center items-center'>
-//             <h2 className='font-bold text-[19px]'>Price</h2>
-//           </div>
-//           <div className='text-grayish text-sm w-[160px] mt-2'>
-//             <div className='flex mb-2 justify-between items-center'>
-//               From
-//               <input
-//                 type='text'
-//                 className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] text-black'
-//               />
-//             </div>
-//             <div className='flex justify-between items-center'>
-//               To
-//               <input
-//                 type='text'
-//                 className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] text-black'
-//               />
-//             </div>
-//           </div>
-//         </div>
-//         <div className='buttons mt-6 flex w-[80%] min-w[111px]'>
-//           <button
-//             className='min-w-[111px] h-[54px] bg-main hover:bg-[#068572] text-white flex justify-center
-//         items-center text-xl font-bold flex-grow duration-200'
-//           >
-//             Apply
-//           </button>
-//         </div>
-//         <button onClick={closeNav}>
-//           <FaTimes className='absolute top-3 right-3 text-2xl cursor-pointer text-gray-500' />
-//         </button>
-//       </motion.div>
-//     </AnimatePresence>
-//   )
-// }
-
-// const Navigation = ({ filterProducts, products }) => {
-//   const [selectedOption, setSelectedOption] = useState('option1')
-//   const filterHandler = () => {}
-//   const categoryRef = useRef('laptop')
-//   const brandRef = useRef('laptop')
-//   const minPriceRef = useRef(0)
-//   const maxPriceRef = useRef(10000)
-
-//   const changeCategory = (category) => {
-//     categoryRef.current = category
-//     console.log(categoryRef.current)
-//   }
-//   const options = {
-//     option1: false,
-//     option2: false,
-//     option3: false,
-//     option4: false,
-//   }
-
-//   Object.keys(options).forEach((option) => {
-//     if (option === selectedOption) {
-//       options[option] = true
-//     } else {
-//       options[option] = false
-//     }
-//   })
-
-//   return (
-//     <div className='first w-[272px] h-full mt-[80px] border-r border-[#E3E2E2] border-solid pr-6'>
-//       <div className='row'>
-//         <div className='head flex justify-between items-center pr-4 mb-2'>
-//           <h2 className='font-bold text-[19px]'>Categories</h2>
-//           <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-//         </div>
-//         <ul className='text-grayish text-sm pl-5'>
-//           {CATEGORIES.map((category) => (
-//             <Category
-//               key={category}
-//               isActive={category.toLowerCase() === 'laptop'}
-//               onChangeCategory={changeCategory}
-//             >
-//               {category}
-//             </Category>
-//           ))}
-//         </ul>
-//       </div>
-//       <div className='row mt-10'>
-//         <div className='head flex justify-center text-center items-center pr-4 '>
-//           <h2 className='font-bold text-[19px]'>Brand</h2>
-//           <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-//         </div>
-//         <ul className='text-grayish text-sm pl-5'>
-//           <Brand
-//             onCheck={() => setSelectedOption('option1')}
-//             checked={options.option1}
-//             isActive
-//           >
-//             Lenovo
-//           </Brand>
-//           <Brand
-//             onCheck={() => setSelectedOption('option2')}
-//             checked={options.option2}
-//           >
-//             Dell
-//           </Brand>
-//           <Brand
-//             onCheck={() => setSelectedOption('option3')}
-//             checked={options.option3}
-//           >
-//             HP
-//           </Brand>
-//           <Brand
-//             onCheck={() => setSelectedOption('option4')}
-//             checked={options.option4}
-//           >
-//             All
-//           </Brand>
-//         </ul>
-//       </div>
-//       <div className='row mt-10'>
-//         <div className='head flex justify-between items-center pr-4'>
-//           <h2 className='font-bold text-[19px]'>Price</h2>
-//           <MdOutlineKeyboardArrowUp className='text-[30px] text-grayish cursor-pointer' />
-//         </div>
-//         <div className='text-grayish text-sm pl-5 w-[160px] mt-2'>
-//           <div className='flex mb-2 justify-between items-center'>
-//             From
-//             <input
-//               ref={minPriceRef}
-//               type='text'
-//               className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] pl-3 text-black'
-//             />
-//           </div>
-//           <div className='flex justify-between items-center'>
-//             To
-//             <input
-//               ref={maxPriceRef}
-//               type='text'
-//               className='border border-[#C6C6C6] border-solid focus:outline-none w-[95px] h-[32px] pl-3 text-black'
-//             />
-//           </div>
-//         </div>
-//       </div>
-//       <div className='buttons mt-6 flex'>
-//         <button className='w-[111px] h-[54px] bg-main text-white flex justify-center items-center text-xl font-bold'>
-//           Apply
-//         </button>
-//         <button className='ml-3 border border-[#D9D9D9] border-solid w-[51px] h-[54px] flex justify-center items-center text-[29px] text-[#878787]'>
-//           <GoTrash />
-//         </button>
-//       </div>
-//     </div>
-//   )
-// }
-
 const AllProducts = ({
-  products,
+  //  products,
   isMobile,
-  onSearch,
-}: {
+}: // onSearch,
+{
   products: productType[]
   isMobile: boolean
   onSearch: (arg: string) => void
 }) => {
-  const [pagItemsNumber, setPagItemsNumber] = useState<[number, number]>([
-    0,
-    PAG_NUMBER,
-  ])
-  const [showedProducts, setShowedProducts] = useState<productType[]>(products)
-  const [pagedProducts, setPagedProducts] = useState<productType[]>(
-    showedProducts.slice(pagItemsNumber[0], pagItemsNumber[1])
-  )
-  const memoizedProducts = useMemo(() => products, [products])
-  // Actually the pagination should be in the backend not in the frontend, each time you send a request
-
-  useEffect(() => {
-    console.log(showedProducts, products)
-  }, [memoizedProducts])
-
-  const memoizedShowedProducts: productType[] = useMemo(
-    () => showedProducts,
-    [showedProducts]
-  )
-  const memoizedPagNumber = useMemo(() => pagItemsNumber, [pagItemsNumber])
-
-  useEffect(() => {
-    setPagedProducts(
-      memoizedShowedProducts.slice(memoizedPagNumber[0], memoizedPagNumber[1])
-    )
-  }, [memoizedShowedProducts, memoizedPagNumber, setPagedProducts])
-
+  const { sendData, isLoading } = useHttp()
+  const [page, setPage] = useState<number>(1)
   const searchRef = useRef<HTMLInputElement | null>(null)
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switch (e.target?.value) {
-      case 'price':
-        setShowedProducts((showed) => {
-          showed.sort((a, b) => a.price - b.price)
-          return [...showed]
-        })
-        break
-      case 'alphabet':
-        setShowedProducts((showed) => {
-          showed.sort((a, b) => a.title.localeCompare(b.title))
-          return [...showed]
-        })
-        break
-      default:
-        setShowedProducts(products)
+  const [showedProducts, setShowedProducts] = useState([])
+  const [params, setParams] = useState({
+    minPrice: 0,
+    maxPrice: undefined,
+    category: undefined,
+    brand: undefined,
+  })
+  const [sortByOption, setSortByOption] = useState('auto')
+  const [totalSize, setTotalSize] = useState<number>(0)
+  const navigate = useNavigate()
+
+  const sortChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target
+
+    setSortByOption(value)
+    console.log('Sorting by', value)
+
+    applyFilters({ ...params, sortBy: value })
+  }
+
+  const pageHandler = (newPage: number | undefined) => {
+    if (newPage === page) {
+      return
     }
-  }
 
-  const searchSubmitHandler = (
-    e: React.FormEvent<HTMLFormElement>,
-    searchTerm = searchRef!.current!.value
-  ) => {
-    e.preventDefault()
+    if (!newPage) {
+      setPage((page) => page + 1)
+    } else if (newPage < 0) {
+      setPage((page) => page - 1)
+    } else {
+      setPage(newPage)
+    }
 
-    onSearch(searchTerm.toLowerCase)
-
-    setShowedProducts(() => {
-      const filteredProducts = products.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-
-      return filteredProducts
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
     })
+
+    applyFilters({ ...params, page: newPage })
   }
 
-  const pageNumberHandler = (start: number, finish: number) => {
-    setPagItemsNumber([start, finish])
+  const getProducts = (queryString: string, options: { method: string }) => {
+    sendData<{ products: productType[]; total: number }>(
+      `products?${queryString}`,
+      options,
+      (res, err) => {
+        if (err) {
+          throw err
+        }
+
+        setTotalSize(res?.total)
+        setShowedProducts(res?.products)
+      }
+    )
   }
+
+  const applyFilters = (params: {}) => {
+    const options = {
+      method: 'GET',
+    }
+
+    const queryString = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries({
+          searchTerm: searchRef.current?.value,
+          sortBy: sortByOption,
+          chunk: PAGE_NUMBER,
+          page: page,
+          ...params,
+        }).filter(([_, value]) => value !== undefined)
+      )
+    ).toString()
+
+    setParams(params)
+    getProducts(queryString, options)
+
+    navigate(`${window.location.pathname}?${queryString}`)
+  }
+
+  const searchSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    applyFilters(params)
+  }
+
+  useEffect(() => {
+    getProducts(`chunk=${PAGE_NUMBER}`, { method: 'GET' })
+  }, [])
 
   return (
     <>
-      {!isMobile && (
-        <Navigation products={products} filterProducts={setShowedProducts} />
-      )}
+      {!isMobile && <Navigation filterHandler={applyFilters} />}
       <div className='second flex-grow mb-20 relative'>
         <SectionHeading title='Our Products' icon={<RiShoppingBagLine />} />
         {!isMobile ? (
@@ -385,12 +194,13 @@ const AllProducts = ({
               <Select
                 className='min-w-[120px]'
                 title='sort by'
-                onChange={handleChange}
+                onChange={sortChangeHandler}
               >
-                <option value='alphabet'>Alphabetically</option>
-                <option value='price'>price</option>
+                <option value='alphabet'>A to Z</option>
+                <option value='alphabet-desc'>Z to A</option>
+                <option value='price'>Price: Low to High</option>
+                <option value='price-desc'>Price: High to Low</option>{' '}
               </Select>
-              {/* </select> */}
             </div>
             <form className='search' onSubmit={searchSubmitHandler}>
               <input
@@ -409,17 +219,22 @@ const AllProducts = ({
           />
         )}
         <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>
-          {pagedProducts.map((product) => (
-            <Product
-              key={product._id}
-              className='flex-grow min-w-[250px]'
-              product={product}
-            />
-          ))}
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            showedProducts.map((product) => (
+              <Product
+                key={product._id}
+                className='flex-grow min-w-[250px]'
+                product={product}
+              />
+            ))
+          )}
         </ul>
         <Pagination
-          size={showedProducts.length}
-          OnChangePage={pageNumberHandler}
+          page={page}
+          totalSize={totalSize}
+          OnChangePage={pageHandler}
         />
       </div>
     </>
@@ -427,67 +242,58 @@ const AllProducts = ({
 }
 
 const Shop = () => {
-  // let products = useSelector((state: RootState) => state.prods.products)
-  // products = useMemo(() => products, [products])
-  const [filteredProducts, setFilteredProducts] = useState()
-  const [params, setParams] = useState({
-    minPrice: 0,
-    maxPrice: undefined,
-    category: undefined,
-    brand: undefined,
-    searchTerm: undefined,
-  })
+  // const [filteredProducts, setFilteredProducts] = useState([])
+  // const [params, setParams] = useState({
+  //   minPrice: 0,
+  //   maxPrice: undefined,
+  //   category: undefined,
+  //   brand: undefined,
+  //   searchTerm: undefined,
+  // })
   const [width, setWidth] = useState(window.innerWidth)
-  const [searchTerm, setSearchTerm] = useState('')
+  // const [searchTerm, setSearchTerm] = useState('')
   const isMobile = +width < 640
-  const memoizedParams = useMemo(() => params, [params])
 
-  const { sendData } = useHttp()
+  // const { sendData } = useHttp()
 
-  const paramsHandler = (params) => [
-    setParams({ ...params, searchTerm: searchTerm }),
-  ]
+  // const applyFilters = () => {
+  //   const options = {
+  //     method: 'GET',
+  //   }
 
-  const searchHandler = (searchTerm: string) => {
-    const options = {
-      method: 'GET',
-    }
+  //   const queryString = new URLSearchParams({
+  //     ...params,
+  //     search: searchTerm,
+  //   }).toString()
 
-    const queryString = new URLSearchParams({
-      ...memoizedParams,
-      search: searchTerm,
-    }).toString()
+  //   sendData<{ products: productType[]; total: number }>(
+  //     `products?${queryString}`,
+  //     options,
+  //     (res, err) => {
+  //       if (err) {
+  //         throw err
+  //       }
+  //       setFilteredProducts(res?.products)
+  //     }
+  //   )
+  // }
 
-    sendData<{ products: productType[]; total: number }>(
-      `products?${queryString}`,
-      options,
-      (res, err) => {
-        if (err) {
-          throw err
-        }
-        setFilteredProducts(res?.products)
-      }
-    )
-  } // I should also add a sort by if we already had a sort by so that we keep the order without sorting again in the client
+  // useEffect(() => {
+  //   const options = {
+  //     method: 'GET',
+  //   }
 
-  useEffect(() => {
-    const options = {
-      method: 'GET',
-    }
-
-    const queryString = new URLSearchParams(memoizedParams).toString()
-
-    sendData<{ products: productType[]; total: number }>(
-      `products?${queryString}`,
-      options,
-      (res, err) => {
-        if (err) {
-          throw err
-        }
-        setFilteredProducts(res?.products)
-      }
-    )
-  }, [memoizedParams, sendData]) // I should also add a sort by if we already had a sort by so that we keep the order without sorting again in the client
+  //   sendData<{ products: productType[]; total: number }>(
+  //     'products',
+  //     options,
+  //     (res, err) => {
+  //       if (err) {
+  //         throw err
+  //       }
+  //       setFilteredProducts(res?.products)
+  //     }
+  //   )
+  // }, [sendData])
 
   useEffect(() => {
     const handleResize = () => {
@@ -501,80 +307,24 @@ const Shop = () => {
     }
   }, [])
 
-  if (!filteredProducts) return <></>
-
   return (
     <>
       <section className='container'>
         <PageHeading title='Shop' />
         <section className={!isMobile ? 'flex' : ''}>
-          {!isMobile && <Navigation getFilterParams={paramsHandler} />}
+          {/* {!isMobile && <Navigation getFilterParams={paramsHandler} onApply={applyFilters} />} */}
           <AllProducts
             isMobile={isMobile}
-            products={filteredProducts}
-            onSearch={searchHandler}
+            // products={filteredProducts}
+            // onSearch={(searchTerm) => {
+            //   setSearchTerm(searchTerm)
+            //   applyFilters()
+            // }}
           />
         </section>
       </section>
     </>
   )
 }
-
-// function Category({ onChangeCategory, children, isActive }: ItemType) {
-//   return (
-//     <li
-//       onClick={() => onChangeCategory(children)}
-//       className={`${
-//         isActive ? 'font-bold bg-black text-white' : 'bg-white text-black'
-//       }  hover:bg-black hover:text-white
-//       px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300 w-[120px] mb-2`}
-//     >
-//       {children}
-//     </li>
-//   )
-// }
-
-// function MobileCategory({ children, isActive }: ItemType) {
-//   return (
-//     <li
-//       className={`${
-//         isActive ? 'font-bold bg-black text-white' : 'bg-white text-black'
-//       }  hover:bg-black hover:text-white
-//       px-4 py-2 rounded-md max-w-full flex-wrap cursor-pointer transition-all duration-300`}
-//     >
-//       {children}
-//     </li>
-//   )
-// }
-
-// function Brand({ children, isActive, checked, onCheck }: ItemType) {
-//   return (
-//     <li className='flex items-center mt-2 ml-10'>
-//       <input
-//         className='mr-2 w-[20px] aspect-square'
-//         name='brand'
-//         value='3'
-//         type='checkbox'
-//         onChange={onCheck}
-//         checked={checked}
-//       />
-//       {children}
-//     </li>
-//   )
-// }
-
-// function MobileBrand({ children }: brandPropTypes) {
-//   return (
-//     <li className='flex items-center mt-2'>
-//       <input
-//         className='mr-2 w-[20px] aspect-square'
-//         name='brand'
-//         value='3'
-//         type='checkbox'
-//       />
-//       {children}
-//     </li>
-//   )
-// }
 
 export default Shop

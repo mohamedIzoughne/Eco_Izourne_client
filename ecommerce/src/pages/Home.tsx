@@ -9,8 +9,8 @@ import Services from '../components/home/Services'
 import Hero from '../components/home/Hero'
 import { RootState } from '../store'
 
-const Home = () => {
-  const products = useSelector((state: RootState) => state.prods.products)
+const Home = ({ products }) => {
+  // const products = useSelector((state: RootState) => state.prods.products)
   return (
     <>
       <Hero />
