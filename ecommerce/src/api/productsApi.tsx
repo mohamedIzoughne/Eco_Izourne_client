@@ -17,8 +17,10 @@ export const productsApi = createApi({
         category = '',
         chunk = 12,
         searchTerm = '',
+        minPrice = 50,
+        maxPrice = 3500,
       }) =>
-        `products?page=${page}&search=${search}&sortBy=${sortBy}&brand=${brand}&category=${category}&chunk=${chunk}&searchTerm=${searchTerm}`,
+        `products?page=${page}&search=${search}&sortBy=${sortBy}&brand=${brand}&category=${category}&chunk=${chunk}&searchTerm=${searchTerm}&minPrice=${minPrice}&maxPrice=${maxPrice}`,
       keepUnusedDataFor: THREE_DAYS,
     }),
     getHomeProducts: builder.query({

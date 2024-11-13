@@ -83,27 +83,24 @@ const Pagination = ({ OnChangePage, totalSize, page }: propsType) => {
 const AllProducts = ({ isMobile }) => {
   const [page, setPage] = useState(1)
   const searchRef = useRef(null)
-  const [sortByOption, setSortByOption] = useState('auto')
+  const mobileSearchRef = useRef(null)
 
   const { getQueryParams, setQueryParams } = useQueryParams()
   const params = getQueryParams()
-  console.log('The params', params.searchTerm)
+  console.log('The params', params)
 
   const { data, isLoading, error } = useGetProductsQuery({
     ...params,
     page,
     chunk: PAGE_NUMBER,
-    sortBy: sortByOption,
   })
-
 
   const totalSize = data?.total || 0
   const products = data?.products || []
 
   const sortChangeHandler = (e) => {
     const { value } = e.target
-    setSortByOption(value)
-    applyFilters({ ...params, sortBy: value })
+    applyFilters({ sortBy: value })
   }
 
   const pageHandler = (newPage) => {
@@ -117,22 +114,24 @@ const AllProducts = ({ isMobile }) => {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    applyFilters({ ...params, page: newPage })
+    applyFilters({ page: newPage })
   }
 
-  const applyFilters = (updatedParams) => {
+  const applyFilters = (updatedParams = {}) => {
     setQueryParams({
-      sortBy: sortByOption,
       chunk: PAGE_NUMBER,
       page: page,
       ...updatedParams,
-      searchTerm: searchRef.current?.value,
     })
   }
 
   const searchSubmitHandler = (e) => {
     e.preventDefault()
-    applyFilters(params)
+    applyFilters({
+      searchTerm: isMobile
+        ? mobileSearchRef.current?.value
+        : searchRef.current?.value,
+    })
   }
 
   return (
@@ -166,7 +165,10 @@ const AllProducts = ({ isMobile }) => {
           </div>
         ) : (
           <MobileNavigation
+            onFilter={applyFilters}
+            onSort={sortChangeHandler}
             onSearch={searchSubmitHandler}
+            searchRef={mobileSearchRef}
             isOpen={true}
             closeNav={() => {}}
           />
