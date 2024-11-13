@@ -17,8 +17,8 @@
 - add a loader
 
 - make all the shop page look good with search input and everything : responsiveness
-- - make the mobile version do the same filters
-- - 
-- fix the problem of images
+<!-- - - make the mobile version do the same filters -->
+<!-- - - make the navigation start with the initial query filters -->
+<!-- - fix the problem of images -->
 
 <!-- - add RTK query for caching -->

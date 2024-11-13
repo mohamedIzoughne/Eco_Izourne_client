@@ -9,6 +9,7 @@ import Select from '../../UI/Select'
 const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
+import useQueryParams from '../../hooks/useQueryParams'
 
 const AnimatedFilterItem = ({ children, className = '', title }) => {
   const [isOpen, setIsOpen] = useState(true)
@@ -64,41 +65,51 @@ export const Navigation = ({
 }: {
   filterHandler: (arg: {}) => void
 }) => {
+  const { getQueryParams } = useQueryParams()
+  const params = getQueryParams()
+
   const [width, setWidth] = useState(300)
   const { search } = useLocation()
-  const categoryTerm = new URLSearchParams(search).get('cat') || 'All'
-  const brandTerm = new URLSearchParams(search).get('brand') || 'All'
+  const categoryTerm = params.category || 'All'
+  const brandTerm = params.brand || 'All'
 
   const [selectedBrand, setSelectedBrand] = useState(brandTerm)
   const [selectedCategory, setSelectedCategory] = useState(categoryTerm)
+
+  const [minPrice, setMinPrice] = useState(+params.minPrice || 0)
+  const [maxPrice, setMaxPrice] = useState(+params.maxPrice || 1000000)
+
   const minPriceRef = useRef<HTMLInputElement>(null)
   const maxPriceRef = useRef<HTMLInputElement>(null)
 
-  const [minPrice, setMinPrice] = useState(50)
-  const [maxPrice, setMaxPrice] = useState(3500)
+  const timerRef = useRef()
 
   const minPriceHandler = useCallback(
-    (value: number) => {
-      setTimeout(() => {
-        if (value < maxPrice) {
-          setMinPrice(value)
-        }
-      }, 500)
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = +e.target.value
+      if (value >= maxPrice) return
+
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => {
+        setMinPrice(value)
+      }, 300)
     },
     [maxPrice]
   )
 
   const maxPriceHandler = useCallback(
-    (value: number) => {
-      setTimeout(() => {
-        if (value > minPrice) {
-          setMaxPrice(value)
-        }
-      }, 500)
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = +e.target.value
+
+      if (value <= minPrice) return
+
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => {
+        setMaxPrice(value)
+      }, 300)
     },
     [minPrice]
   )
-
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [startWidth, setStartWidth] = useState(300)
@@ -197,14 +208,8 @@ export const Navigation = ({
                   step='10'
                   className='price-range w-full h-2 bg-main/20 rounded-lg appearance-none cursor-pointer accent-main hover:accent-[#068572]'
                   ref={minPriceRef}
-                  onChange={(e) => {
-                    if (
-                      +e.target.value > +(maxPriceRef.current?.value || 1000)
-                    ) {
-                      e.target.value = maxPriceRef.current?.value || '1000'
-                    }
-                    minPriceHandler(e.target.value)
-                  }}
+                  defaultValue={minPrice}
+                  onChange={minPriceHandler}
                 />
               </div>
               <div>
@@ -213,16 +218,11 @@ export const Navigation = ({
                   type='range'
                   min='50'
                   max='3500'
-                  defaultValue='3500'
+                  defaultValue={maxPrice}
                   step='10'
                   className='price-range w-full h-2 bg-main/20 rounded-lg appearance-none cursor-pointer accent-main hover:accent-[#068572]'
                   ref={maxPriceRef}
-                  onChange={(e) => {
-                    if (+e.target.value < +(minPriceRef.current?.value || 0)) {
-                      e.target.value = minPriceRef.current?.value || '0'
-                    }
-                    maxPriceHandler(e.target.value)
-                  }}
+                  onChange={maxPriceHandler}
                 />
               </div>
             </div>{' '}
@@ -250,14 +250,27 @@ export const Navigation = ({
 
 export const MobileNavigation = ({
   isOpen,
-  closeNav,
   onSearch,
+  searchRef,
+  onSort,
+  onFilter,
 }: {
   isOpen: boolean
-  closeNav: () => void
+  searchRef: Element
   onSearch: (e: React.FormEvent<HTMLFormElement>, searchRef?: Element) => void
+  onSort: (e) => void
+  onFilter: () => void
 }) => {
-  const searchRef = useRef<Element>(null)
+  const { setQueryParams } = useQueryParams()
+
+  const brandChangeHandler = (e) => {
+    onFilter({ brand: e.target.value })
+  }
+
+  const categoryChangeHandler = (e) => {
+    onFilter({ category: e.target.value })
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -279,10 +292,7 @@ export const MobileNavigation = ({
         className='first bg-white mt-2 border-[#E3E2E2] border-solid flex w-full max-w-[300px] p-5 pb-16
       justify-start mb-4 flex-col text-center items-center z-40 overflow-hidden'
       >
-        <form
-          className='search w-full mt-3 mb-1'
-          onSubmit={(e) => onSearch(e, searchRef!.current!.value)}
-        >
+        <form className='search w-full mt-3 mb-1' onSubmit={onSearch}>
           <input
             type='text'
             placeholder='Search'
@@ -291,24 +301,32 @@ export const MobileNavigation = ({
           />
         </form>
         <div className='row flex w-full justify-between gap-1'>
-          <Select title='sort by' className='w-1/3'>
-            <option value='default' hidden selected disabled>
+          <Select onChange={onSort} title='sort by' className='w-1/3'>
+            <option value='auto' hidden selected disabled>
               sort by
             </option>
-            <option value='alphabet'>Alphabetically</option>
-            <option value='price'>price</option>
+            <option value='alphabet'>A to Z</option>
+            <option value='alphabet-desc'>Z to A</option>
+            <option value='price'>Price: Low to High</option>
+            <option value='price-desc'>Price: High to Low</option>
           </Select>
-          <Select title='brand' className='w-1/3'>
-            <option value='lenovo'>Lenovo</option>
-            <option value='dell'>Dell</option>
-            <option value='hp'>HP</option>
-            <option value='all'>aLL</option>
+          <Select onChange={brandChangeHandler} title='brand' className='w-1/3'>
+            {BRANDS.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
           </Select>
-          <Select title='category' className='w-1/3'>
-            <option value='laptops'>laptops</option>
-            <option value='computers'>Computers</option>
-            <option value='monitors'>Monitors</option>
-            <option value='gaming'>Gaming</option>
+          <Select
+            onChange={categoryChangeHandler}
+            title='category'
+            className='w-1/3'
+          >
+            {CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </Select>
         </div>
         {/* <div className='row mt-7'>
