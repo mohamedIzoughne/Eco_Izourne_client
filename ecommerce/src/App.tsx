@@ -12,11 +12,12 @@ import About from './pages/About'
 import Wishlist from './pages/Wishlist'
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
-import { productsActions } from './store/products-slice'
 import useHttp from './hooks/useHttp'
 import { cartActions } from './store/cart-slice'
 import { wishlistActions } from './store/wishlist-slice'
 import { ScrollToTop } from './utils'
+import { useGetHomeProductsQuery } from './api/productsApi'
+
 export type productType = {
   _id: string
   title: string
@@ -43,7 +44,9 @@ export type cartType = {
 function App() {
   const dispatch = useDispatch()
   const { sendData } = useHttp()
-  const [products, setProducts] = useState([])
+  const { data } = useGetHomeProductsQuery({})
+  // const [products, setProducts] = useState([])
+  const products = data?.products || []
 
   useEffect(() => {
     const cart = localStorage.getItem('cart')
@@ -58,43 +61,43 @@ function App() {
     if (wishlist) {
       dispatch(wishlistActions.replaceWishlist(wishlist))
     }
-    const options = {
-      method: 'GET',
-    }
+    // const options = {
+    //   method: 'GET',
+    // }
 
-    sendData<{ products: productType[]; total: number }>(
-      'products?chunk=9',
-      options,
-      (res, err) => {
-        if (err) {
-          console.log(err)
-          return
-        }
+    // sendData<{ products: productType[]; total: number }>(
+    //   'products?chunk=9',
+    //   options,
+    //   (res, err) => {
+    //     if (err) {
+    //       console.log(err)
+    //       return
+    //     }
 
-        if (res) {
-          res.products.forEach((pr) => {
-            if (
-              cart &&
-              cart.items[pr._id]
-              // cart.items.find((item: productType) => item._id === pr._id)
-            ) {
-              pr.isAddedToCart = true
-            } else {
-              pr.isAddedToCart = false
-            }
-            if (
-              wishlist &&
-              wishlist.items.find((item: productType) => item._id === pr._id)
-            ) {
-              pr.isAddedToWishList = true
-            } else {
-              pr.isAddedToWishList = false
-            }
-          })
-          setProducts(res.products)
-        }
-      }
-    )
+    //     if (res) {
+    //       res.products.forEach((pr) => {
+    //         if (
+    //           cart &&
+    //           cart.items[pr._id]
+    //           // cart.items.find((item: productType) => item._id === pr._id)
+    //         ) {
+    //           pr.isAddedToCart = true
+    //         } else {
+    //           pr.isAddedToCart = false
+    //         }
+    //         if (
+    //           wishlist &&
+    //           wishlist.items.find((item: productType) => item._id === pr._id)
+    //         ) {
+    //           pr.isAddedToWishList = true
+    //         } else {
+    //           pr.isAddedToWishList = false
+    //         }
+    //       })
+    //       setProducts(res.products)
+    //     }
+    //   }
+    // )
   }, [dispatch, sendData])
 
   ScrollToTop()
@@ -106,7 +109,7 @@ function App() {
         <Route path='/' element={<Home products={products} />} />
         <Route path='/shop' element={<Shop />} />
         <Route path='/cart' element={<CartPage />} />
-        <Route path='/products/:prodId' element={<ProductDetails />} />
+        <Route path='/shop/:prodId' element={<ProductDetails />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/FAQs' element={<FAQs />} />
         <Route path='/about' element={<About />} />

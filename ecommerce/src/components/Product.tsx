@@ -65,7 +65,7 @@ const Product = ({ product, className = '' }: propsType) => {
   return (
     <li className={className + ' relative shadow-customed aspect-product'}>
       <Reveal width='100%' className='h-full'>
-        <Link to={`/products/${product._id}`} className='block h-[80%]'>
+        <Link to={`/shop/${product._id}`} className='block h-[80%]'>
           <div
             className='image-holder bg-secondary 
          mx-auto h- h-full'

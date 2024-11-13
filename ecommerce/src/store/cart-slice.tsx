@@ -80,7 +80,6 @@ const cartSlice = createSlice({
       // const item = state.items.find((item) => item._id === _id)
       const item = state.items[_id]
       if (item) {
-        console.log(item.quantity)
         item.quantity++
         item.totalPrice += item.price
         state.totalCartPrice += item.price

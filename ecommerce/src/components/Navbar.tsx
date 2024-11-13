@@ -267,7 +267,7 @@ const WishPreview = ({
       onMouseLeave={onMouseLeave}
       onMouseOver={onMouseOver}
     >
-      {!wish || !wish.items  ? (
+      {!wish || !wish.items ? (
         <p>Your wish list is empty</p>
       ) : (
         <ul>

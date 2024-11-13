@@ -11,7 +11,7 @@ const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 
 const AnimatedFilterItem = ({ children, className = '', title }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
 
   return (
     <div className={`row ${className}`}>
@@ -99,7 +99,6 @@ export const Navigation = ({
     [minPrice]
   )
 
-  //
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [startWidth, setStartWidth] = useState(300)
@@ -391,7 +390,6 @@ function Brand({
   onCheck: () => void
   label: string
 }) {
-  console.log(label)
   return (
     <li className='flex items-center mt-2'>
       <div className='relative mr-2 w-[20px] aspect-square'>

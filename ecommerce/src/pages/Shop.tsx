@@ -5,12 +5,10 @@ import Product from '../components/Product'
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import PageHeading from '../components/PageHeading'
 import { Navigation, MobileNavigation } from '../components/shop/FilterNav'
-import { productType } from '../App'
-import useHttp from '../hooks/useHttp'
-import { ScrollToTop } from '../utils'
 import Select from '../UI/Select'
-import { useNavigate } from 'react-router-dom'
 import Spinner from '../UI/Spinner'
+import { useGetProductsQuery } from '../api/productsApi'
+import useQueryParams from '../hooks/useQueryParams'
 
 type propsType = {
   OnChangePage: (arg1?: number) => void
@@ -82,105 +80,60 @@ const Pagination = ({ OnChangePage, totalSize, page }: propsType) => {
   )
 }
 
-const AllProducts = ({
-  //  products,
-  isMobile,
-}: // onSearch,
-{
-  products: productType[]
-  isMobile: boolean
-  onSearch: (arg: string) => void
-}) => {
-  const { sendData, isLoading } = useHttp()
-  const [page, setPage] = useState<number>(1)
-  const searchRef = useRef<HTMLInputElement | null>(null)
-  const [showedProducts, setShowedProducts] = useState([])
-  const [params, setParams] = useState({
-    minPrice: 0,
-    maxPrice: undefined,
-    category: undefined,
-    brand: undefined,
-  })
+const AllProducts = ({ isMobile }) => {
+  const [page, setPage] = useState(1)
+  const searchRef = useRef(null)
   const [sortByOption, setSortByOption] = useState('auto')
-  const [totalSize, setTotalSize] = useState<number>(0)
-  const navigate = useNavigate()
 
-  const sortChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const { getQueryParams, setQueryParams } = useQueryParams()
+  const params = getQueryParams()
+  console.log('The params', params.searchTerm)
+
+  const { data, isLoading, error } = useGetProductsQuery({
+    ...params,
+    page,
+    chunk: PAGE_NUMBER,
+    sortBy: sortByOption,
+  })
+
+
+  const totalSize = data?.total || 0
+  const products = data?.products || []
+
+  const sortChangeHandler = (e) => {
     const { value } = e.target
-
     setSortByOption(value)
-    console.log('Sorting by', value)
-
     applyFilters({ ...params, sortBy: value })
   }
 
-  const pageHandler = (newPage: number | undefined) => {
-    if (newPage === page) {
-      return
-    }
-
+  const pageHandler = (newPage) => {
+    if (newPage === page) return
     if (!newPage) {
-      setPage((page) => page + 1)
-    } else if (newPage < 0) {
-      setPage((page) => page - 1)
+      setPage((prev) => prev + 1)
+    } else if (newPage === -1) {
+      setPage((prev) => prev - 1)
     } else {
       setPage(newPage)
     }
 
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     applyFilters({ ...params, page: newPage })
   }
 
-  const getProducts = (queryString: string, options: { method: string }) => {
-    sendData<{ products: productType[]; total: number }>(
-      `products?${queryString}`,
-      options,
-      (res, err) => {
-        if (err) {
-          throw err
-        }
-
-        setTotalSize(res?.total)
-        setShowedProducts(res?.products)
-      }
-    )
+  const applyFilters = (updatedParams) => {
+    setQueryParams({
+      sortBy: sortByOption,
+      chunk: PAGE_NUMBER,
+      page: page,
+      ...updatedParams,
+      searchTerm: searchRef.current?.value,
+    })
   }
 
-  const applyFilters = (params: {}) => {
-    const options = {
-      method: 'GET',
-    }
-
-    const queryString = new URLSearchParams(
-      Object.fromEntries(
-        Object.entries({
-          searchTerm: searchRef.current?.value,
-          sortBy: sortByOption,
-          chunk: PAGE_NUMBER,
-          page: page,
-          ...params,
-        }).filter(([_, value]) => value !== undefined)
-      )
-    ).toString()
-
-    setParams(params)
-    getProducts(queryString, options)
-
-    navigate(`${window.location.pathname}?${queryString}`)
-  }
-
-  const searchSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const searchSubmitHandler = (e) => {
     e.preventDefault()
     applyFilters(params)
   }
-
-  useEffect(() => {
-    getProducts(`chunk=${PAGE_NUMBER}`, { method: 'GET' })
-  }, [])
 
   return (
     <>
@@ -188,7 +141,7 @@ const AllProducts = ({
       <div className='second flex-grow mb-20 relative'>
         <SectionHeading title='Our Products' icon={<RiShoppingBagLine />} />
         {!isMobile ? (
-          <div className='filter flex justify-between items-center mb-6'>
+          <div className='filter flex justify-between items-end  mb-6'>
             <div className='sort flex mt-4 items-center'>
               <h2 className='font-bold ml-3 mr-1 sm:mr-4'>Sort by:</h2>
               <Select
@@ -199,14 +152,14 @@ const AllProducts = ({
                 <option value='alphabet'>A to Z</option>
                 <option value='alphabet-desc'>Z to A</option>
                 <option value='price'>Price: Low to High</option>
-                <option value='price-desc'>Price: High to Low</option>{' '}
+                <option value='price-desc'>Price: High to Low</option>
               </Select>
             </div>
             <form className='search' onSubmit={searchSubmitHandler}>
               <input
                 type='text'
                 placeholder='Search'
-                className='w-[257px] italic h-[47px] rounded-[4px] pl-4 text-[17px] text-[#616161] border border-[#E0E0E0] border-solid focus:outline-none border-opacity-70'
+                className='lg:w-[257px] italic h-[34px] lg:h-[47px] rounded-[4px] pl-4 text-[17px] text-[#616161] border border-[#E0E0E0] border-solid focus:outline-none border-opacity-70'
                 ref={searchRef}
               />
             </form>
@@ -220,9 +173,9 @@ const AllProducts = ({
         )}
         <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>
           {isLoading ? (
-            <Spinner />
+            <Spinner className='my-40' />
           ) : (
-            showedProducts.map((product) => (
+            products.map((product) => (
               <Product
                 key={product._id}
                 className='flex-grow min-w-[250px]'
@@ -242,58 +195,8 @@ const AllProducts = ({
 }
 
 const Shop = () => {
-  // const [filteredProducts, setFilteredProducts] = useState([])
-  // const [params, setParams] = useState({
-  //   minPrice: 0,
-  //   maxPrice: undefined,
-  //   category: undefined,
-  //   brand: undefined,
-  //   searchTerm: undefined,
-  // })
   const [width, setWidth] = useState(window.innerWidth)
-  // const [searchTerm, setSearchTerm] = useState('')
   const isMobile = +width < 640
-
-  // const { sendData } = useHttp()
-
-  // const applyFilters = () => {
-  //   const options = {
-  //     method: 'GET',
-  //   }
-
-  //   const queryString = new URLSearchParams({
-  //     ...params,
-  //     search: searchTerm,
-  //   }).toString()
-
-  //   sendData<{ products: productType[]; total: number }>(
-  //     `products?${queryString}`,
-  //     options,
-  //     (res, err) => {
-  //       if (err) {
-  //         throw err
-  //       }
-  //       setFilteredProducts(res?.products)
-  //     }
-  //   )
-  // }
-
-  // useEffect(() => {
-  //   const options = {
-  //     method: 'GET',
-  //   }
-
-  //   sendData<{ products: productType[]; total: number }>(
-  //     'products',
-  //     options,
-  //     (res, err) => {
-  //       if (err) {
-  //         throw err
-  //       }
-  //       setFilteredProducts(res?.products)
-  //     }
-  //   )
-  // }, [sendData])
 
   useEffect(() => {
     const handleResize = () => {

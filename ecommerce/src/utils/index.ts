@@ -5,9 +5,6 @@ import { useLocation } from 'react-router-dom'
 export const filterProductsByObj = (products: any, filterObj: any) => {
   let filteredProducts = [...products]
 
-  console.log(filterObj)
-
-  console.log(products)
 
   for (const key in filterObj) {
     if (key !== 'price' && filterObj[key] !== 'All') {

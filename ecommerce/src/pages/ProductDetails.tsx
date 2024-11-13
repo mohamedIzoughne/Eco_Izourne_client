@@ -7,38 +7,40 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import Product from '../components/Product'
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { cartActions } from '../store/cart-slice'
-import useHttp from '../hooks/useHttp'
-import { RootState } from '../store'
 import { productType } from '../App'
+import { useGetProductQuery, useGetSimilarQuery } from '../api/productsApi'
+import { useParams } from 'react-router-dom'
+import Spinner from '../UI/Spinner'
 
 const ProductDetails = () => {
   const { prodId } = useParams()
-  const products = useSelector((state: RootState) => state.prods.products)
-  const [similarProds, setSimilarProds] = useState<productType[]>([])
-  const product = products.find((product) => product._id.toString() === prodId)
-  const [mainImage, setMainImage] = useState(product?.imageURL)
+  // const [similarProds, setSimilarProds] = useState<productType[]>([])
   const dispatch = useDispatch()
   const [quantity, setQuantity] = useState(1)
-  const { sendData } = useHttp()
-  useEffect(() => {
-    const options = {
-      method: 'GET',
-    }
+  const { data, isLoading: productIsLoading } = useGetProductQuery(prodId)
 
-    sendData<productType[]>(
-      `similar/${prodId}?cat=${product?.category.name}`,
-      options,
-      (res) => {
-        if (res) {
-          setSimilarProds(res)
-        }
-      }
-    )
-  }, [])
+  const category = data?.product?.category.name
+
+  const { data: similarData } = useGetSimilarQuery(
+    { id: prodId, cat: category },
+    { skip: !category } // Skip until category is defined
+  )
+
+  const similarProds = similarData?.products || []
+
+  // const { data: similarProds = [] } = useGetSimilarQuery({
+  //   id: prodId,
+  //   cat: data?.product?.category.name,
+  // })
+
+  console.log(data?.product.category.name)
+  const product = data?.product
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    product?.imageURL
+  )
 
   const incrementQuantity = () => {
     setQuantity((prev) => prev + 1)
@@ -52,9 +54,12 @@ const ProductDetails = () => {
     const active = document.querySelector('.slide.active')
     active?.classList.remove('active')
     e.currentTarget.classList.add('active')
-    setMainImage(e.currentTarget.getAttribute('id') || '')
+    setSelectedImage(e.currentTarget.getAttribute('id') || '')
   }
 
+  if (productIsLoading) {
+    return <Spinner className='my-80' />
+  }
   return (
     <section className='container mb-16'>
       <PageHeading title='Product details' />
@@ -63,7 +68,6 @@ const ProductDetails = () => {
           {product?.images && product?.images.length > 0 && (
             <div className='w-full sm:w-[100px] slider col-span-1 overflow-hidden'>
               <Swiper
-                // direction='horizontal'
                 className='h-[100px] sm:h-[448px]'
                 modules={[Pagination]}
                 pagination={{ clickable: true }}
@@ -78,7 +82,7 @@ const ProductDetails = () => {
                   },
                 }}
               >
-                {product.images.map((image, index) => (
+                {product.images.map((image: string, index: number) => (
                   <SwiperSlide
                     key={index}
                     id={image}
@@ -92,43 +96,16 @@ const ProductDetails = () => {
                     />
                   </SwiperSlide>
                 ))}
-                {/* <SwiperSlide
-                className='slide flex justify-center items-center bg-secondary'
-                onClick={handleClick}
-              >
-                <img src={laptop} alt='' />
-              </SwiperSlide>
-              <SwiperSlide
-                className='slide flex justify-center items-center bg-secondary'
-                onClick={handleClick}
-              >
-                <img src={laptop} alt='' />
-              </SwiperSlide>
-              <SwiperSlide
-                className='slide flex justify-center items-center bg-secondary'
-                onClick={handleClick}
-              >
-                <img src={laptop} alt='' />
-              </SwiperSlide>
-              <SwiperSlide
-                className='slide flex justify-center items-center bg-secondary'
-                onClick={handleClick}
-              >
-                <img src={laptop} alt='' />
-              </SwiperSlide>
-              <SwiperSlide
-                className='slide flex justify-center items-center bg-secondary'
-                onClick={handleClick}
-              >
-                <img src={laptop} alt='' />
-              </SwiperSlide> */}
               </Swiper>
             </div>
           )}
           <div className='image-holder w-full sm:w-[448px] aspect-square bg-[#D9D9D9] overflow-hidden'>
             <img
               className='w-full h-full object-cover'
-              src={import.meta.env.VITE_SERVER_API + mainImage}
+              src={
+                import.meta.env.VITE_SERVER_API +
+                (selectedImage || product?.imageURL)
+              }
               alt=''
             />
           </div>
@@ -151,10 +128,10 @@ const ProductDetails = () => {
             </small>
           </p>
           <p className='max-w-[320px] text-[#7A7A7A] mb-5'>
-            “{product?.description}”
+            "{product?.description}"
           </p>
           <hr />
-          <div className='flex items-start  mt-4 flex-col md:flex-row flex-wrap sm:items-center gap-y-2'>
+          <div className='flex items-start   mt-4 flex-col md:flex-row flex-wrap md:items-center gap-y-2'>
             <div className='flex items-center p-2'>
               <AiOutlineMinus
                 onClick={decrementQuantity}
@@ -181,7 +158,7 @@ const ProductDetails = () => {
             </button>
             <button
               className='block bg-white hover:bg-main w-[239px] h-[54px] text-main hover:text-white 
-            font-bold text-xl cursor-pointer rounded-sm border border-main border-solid text-left pl-5 sm:ml-5 duration-200'
+            font-bold text-xl cursor-pointer rounded-sm border border-main border-solid text-left pl-5 md:ml-5 duration-200'
             >
               Add to wishlist
             </button>
@@ -195,8 +172,6 @@ const ProductDetails = () => {
             <Swiper
               modules={[Navigation, Autoplay]}
               className='mb-5'
-              // slidesPerView={5}
-              // spaceBetween={0}
               navigation
               loop={true}
               spaceBetween={15}
@@ -207,26 +182,20 @@ const ProductDetails = () => {
               breakpoints={{
                 0: {
                   slidesPerView: 1,
-                  // spaceBetween: 0,
                 },
                 440: {
                   slidesPerView: 2,
-                  // spaceBetween: 5,
                 },
                 768: {
                   slidesPerView: 3,
-                  // spaceBetween: 10,
                 },
                 1024: {
                   slidesPerView: 4,
-                  // spaceBetween: 10,
                 },
                 1280: {
                   slidesPerView: 5,
-                  // spaceBetween: 10,
                 },
               }}
-              //   autoplay
             >
               {similarProds.map((product) => (
                 <SwiperSlide>
