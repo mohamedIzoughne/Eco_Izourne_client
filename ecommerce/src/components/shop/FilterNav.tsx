@@ -1,10 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaTimes } from 'react-icons/fa'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { MdOutlineKeyboardArrowUp } from 'react-icons/md'
-import { useLocation } from 'react-router-dom'
-import { filterProductsByObj } from '../../utils'
-import { productType } from '../../App'
 import Select from '../../UI/Select'
 const CATEGORIES = ['Laptop', 'Phone', 'Computer', 'Monitor', 'All']
 const BRANDS = ['Lenovo', 'HP', 'Dell', 'All']
@@ -63,13 +59,12 @@ const AnimatedFilterItem = ({ children, className = '', title }) => {
 export const Navigation = ({
   filterHandler,
 }: {
-  filterHandler: (arg: {}) => void
+  filterHandler: (arg: { [key: string]: string | number }) => void
 }) => {
   const { getQueryParams } = useQueryParams()
   const params = getQueryParams()
 
   const [width, setWidth] = useState(300)
-  const { search } = useLocation()
   const categoryTerm = params.category || 'All'
   const brandTerm = params.brand || 'All'
 
@@ -81,8 +76,7 @@ export const Navigation = ({
 
   const minPriceRef = useRef<HTMLInputElement>(null)
   const maxPriceRef = useRef<HTMLInputElement>(null)
-
-  const timerRef = useRef()
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
 
   const minPriceHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,13 +250,11 @@ export const MobileNavigation = ({
   onFilter,
 }: {
   isOpen: boolean
-  searchRef: Element
+  searchRef: React.RefObject<HTMLInputElement>
   onSearch: (e: React.FormEvent<HTMLFormElement>, searchRef?: Element) => void
   onSort: (e) => void
-  onFilter: () => void
+  onFilter: (arg: { [key: string]: string }) => void
 }) => {
-  const { setQueryParams } = useQueryParams()
-
   const brandChangeHandler = (e) => {
     onFilter({ brand: e.target.value })
   }
@@ -438,16 +430,16 @@ function Brand({
   )
 }
 
-function MobileBrand({ children }: { children: React.ReactNode }) {
-  return (
-    <li className='flex items-center mt-2'>
-      <input
-        className='mr-2 w-[20px] aspect-square'
-        name='brand'
-        value='3'
-        type='checkbox'
-      />
-      {children}
-    </li>
-  )
-}
+// function MobileBrand({ children }: { children: React.ReactNode }) {
+//   return (
+//     <li className='flex items-center mt-2'>
+//       <input
+//         className='mr-2 w-[20px] aspect-square'
+//         name='brand'
+//         value='3'
+//         type='checkbox'
+//       />
+//       {children}
+//     </li>
+//   )
+// }

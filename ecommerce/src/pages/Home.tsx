@@ -2,12 +2,10 @@ import Categories from '../components/home/Categories'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/autoplay'
-import { useSelector } from 'react-redux'
 import Products from '../components/Products'
 import Testimonials from '../components/home/Testimonials'
 import Services from '../components/home/Services'
 import Hero from '../components/home/Hero'
-import { RootState } from '../store'
 
 const Home = ({ products }) => {
   // const products = useSelector((state: RootState) => state.prods.products)

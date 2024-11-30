@@ -35,8 +35,6 @@ export type productType = {
   isAddedToWishList: boolean
 }
 
-import { useState } from 'react'
-
 export type cartType = {
   items: productType[]
 }
@@ -61,43 +59,6 @@ function App() {
     if (wishlist) {
       dispatch(wishlistActions.replaceWishlist(wishlist))
     }
-    // const options = {
-    //   method: 'GET',
-    // }
-
-    // sendData<{ products: productType[]; total: number }>(
-    //   'products?chunk=9',
-    //   options,
-    //   (res, err) => {
-    //     if (err) {
-    //       console.log(err)
-    //       return
-    //     }
-
-    //     if (res) {
-    //       res.products.forEach((pr) => {
-    //         if (
-    //           cart &&
-    //           cart.items[pr._id]
-    //           // cart.items.find((item: productType) => item._id === pr._id)
-    //         ) {
-    //           pr.isAddedToCart = true
-    //         } else {
-    //           pr.isAddedToCart = false
-    //         }
-    //         if (
-    //           wishlist &&
-    //           wishlist.items.find((item: productType) => item._id === pr._id)
-    //         ) {
-    //           pr.isAddedToWishList = true
-    //         } else {
-    //           pr.isAddedToWishList = false
-    //         }
-    //       })
-    //       setProducts(res.products)
-    //     }
-    //   }
-    // )
   }, [dispatch, sendData])
 
   ScrollToTop()

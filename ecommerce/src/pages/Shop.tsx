@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import SectionHeading from '../UI/SectionHeading'
 import { RiShoppingBagLine } from 'react-icons/ri'
 import Product from '../components/Product'
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PageHeading from '../components/PageHeading'
 import { Navigation, MobileNavigation } from '../components/shop/FilterNav'
 import Select from '../UI/Select'
@@ -83,13 +83,13 @@ const Pagination = ({ OnChangePage, totalSize, page }: propsType) => {
 const AllProducts = ({ isMobile }) => {
   const [page, setPage] = useState(1)
   const searchRef = useRef(null)
-  const mobileSearchRef = useRef(null)
+  const mobileSearchRef = useRef<HTMLInputElement>(null)
 
   const { getQueryParams, setQueryParams } = useQueryParams()
   const params = getQueryParams()
   console.log('The params', params)
 
-  const { data, isLoading, error } = useGetProductsQuery({
+  const { data, isLoading } = useGetProductsQuery({
     ...params,
     page,
     chunk: PAGE_NUMBER,
@@ -170,7 +170,6 @@ const AllProducts = ({ isMobile }) => {
             onSearch={searchSubmitHandler}
             searchRef={mobileSearchRef}
             isOpen={true}
-            closeNav={() => {}}
           />
         )}
         <ul className='products grid grid-column-main justify-start gap-5 mt-2 mx-auto'>

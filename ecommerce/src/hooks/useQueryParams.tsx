@@ -2,7 +2,7 @@
 import { useSearchParams } from 'react-router-dom'
 
 interface QueryParams {
-  [key: string]: string
+  [key: string]: string | number
 }
 
 const useQueryParams = () => {
@@ -17,12 +17,13 @@ const useQueryParams = () => {
       maxPrice: params.maxPrice || '3500',
       searchTerm: params.searchTerm || '',
       sortBy: params.sortBy || 'auto',
-      page: params.page || '1',
+      page: params.page || 1,
+      chunk: params.chunk || 10,
     }
   }
 
   // Update query parameters; merge new params with the existing ones
-  const setQueryParams = (newParams: Partial<QueryParams>): void => {
+  const setQueryParams = (newParams): void => {
     const currentParams = getQueryParams()
     const updatedParams = { ...currentParams, ...newParams }
 

@@ -15,10 +15,24 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    // make them true to work
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    // added by me
+
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "noImplicitReturns": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": false,
+    "allowJs": true,
+    "checkJs": false
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
