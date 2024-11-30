@@ -255,6 +255,7 @@ export const MobileNavigation = ({
   onSort: (e) => void
   onFilter: (arg: { [key: string]: string }) => void
 }) => {
+
   const brandChangeHandler = (e) => {
     onFilter({ brand: e.target.value })
   }
