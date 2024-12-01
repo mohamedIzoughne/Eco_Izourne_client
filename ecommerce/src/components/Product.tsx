@@ -72,7 +72,7 @@ const Product = ({ product, className = '' }: propsType) => {
           >
             <img
               className='w-full h-full object-cover'
-              src={import.meta.env.VITE_SERVER_API + product.imageURL}
+              src={product.imageURL}
               loading='lazy'
               alt={product.title}
             />

@@ -90,7 +90,7 @@ const ProductDetails = () => {
                   >
                     <img
                       className='w-full h-full object-cover'
-                      src={import.meta.env.VITE_SERVER_API + image}
+                      src={image}
                       alt=''
                     />
                   </SwiperSlide>
@@ -101,10 +101,7 @@ const ProductDetails = () => {
           <div className='image-holder w-full sm:w-[448px] aspect-square bg-[#D9D9D9] overflow-hidden'>
             <img
               className='w-full h-full object-cover'
-              src={
-                import.meta.env.VITE_SERVER_API +
-                (selectedImage || product?.imageURL)
-              }
+              src={selectedImage || product?.imageURL}
               alt=''
             />
           </div>
