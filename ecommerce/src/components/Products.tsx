@@ -4,13 +4,14 @@ import Product from './Product'
 import { Link } from 'react-router-dom'
 import { productType } from '../App'
 type propsType = {
-  products: productType[],
+  products: { [key: string]: productType }
   title: string
 }
+
 const Products = ({ products, title }: propsType) => {
   return (
     <section className='products container pb-40'>
-      {products.length > 0 && (
+      {products && (
         <SectionHeading
           title={title}
           icon={<FaBagShopping className='text-lg' />}
@@ -18,10 +19,10 @@ const Products = ({ products, title }: propsType) => {
       )}
       <div className='products-list my-10'>
         <ul className='ml-5 grid-columns-main gap-5 '>
-          {products.map((product) => {
+          {Object.values(products).map((product) => {
             return <Product key={product._id} product={product} />
           })}
-        </ul>
+        </ul> 
       </div>
       <Link
         className='flex mx-auto w-[211px] h-[46px] bg-[#4AEED6]

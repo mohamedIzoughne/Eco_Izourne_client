@@ -1,5 +1,6 @@
 const Select: React.FC<{
-  children: React.JSX
+
+  children: React.ReactNode
   title: string
   className?: string
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void
