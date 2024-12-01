@@ -14,7 +14,7 @@ type propsType = {
 
 const Product = ({ product, className = '' }: propsType) => {
   const cart = useSelector((state: RootState) => state.cart)
-  // const wish = useSelector((state: RootState) => state.wish)
+  const wish = useSelector((state: RootState) => state.wish)
   const dispatch = useDispatch()
   // const isAddedToCart = !!cart.items.find(
   //   (item: cartItemState) => item._id === product._id
@@ -23,7 +23,7 @@ const Product = ({ product, className = '' }: propsType) => {
   //   (item: productType) => item._id === product._id
   // )
   const isAddedToCart = !!cart.items[product._id]
-  const isAddedToWishList = product.isAddedToWishList
+  const isAddedToWishList = !!wish.items[product._id]
 
   // const [isAddedToWishList, setIsAddedToWishlist] = useState<boolean>(
   //   product.isAddedToWishList
